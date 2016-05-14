@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<VBox spacing="4.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label text="PAYMENT VIEW">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <GridPane hgap="4.0" vgap="4.0" VBox.vgrow="NEVER">
+         <children>
+            <Label text="Id" />
+            <Label fx:id="idField" text="&lt;id&gt;" GridPane.columnIndex="1" />
+            <Label text="Payment Date" GridPane.rowIndex="1" />
+            <Label fx:id="paymentDate" text="&lt;paymentDate&gt;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <CheckBox disable="true" mnemonicParsing="false" text="Processed" GridPane.rowIndex="2" />
+         </children>
+         <columnConstraints>
+            <ColumnConstraints hgrow="NEVER" />
+            <ColumnConstraints hgrow="ALWAYS" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints vgrow="NEVER" />
+            <RowConstraints vgrow="NEVER" />
+            <RowConstraints vgrow="NEVER" />
+         </rowConstraints>
+      </GridPane>
+      <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+         <tabs>
+            <Tab closable="false" text="Charges">
+               <content>
+                  <TableView fx:id="chargeTable" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="chargeIdColumn" editable="false" minWidth="-1.0" prefWidth="75.0" text="Id" />
+                        <TableColumn fx:id="chargePlannedDateColumn" editable="false" prefWidth="75.0" text="Planned Date" />
+                        <TableColumn fx:id="chargeNetColumn" editable="false" prefWidth="75.0" text="Net" />
+                        <TableColumn fx:id="chargeVatColumn" editable="false" prefWidth="75.0" text="Vat" />
+                        <TableColumn fx:id="chargeTotalColumn" editable="false" prefWidth="75.0" text="Total" />
+                        <TableColumn fx:id="chargeNominalCodeColumn" editable="false" prefWidth="75.0" text="Nominal Code" />
+                        <TableColumn fx:id="chargeTaxCodeColumn" editable="false" prefWidth="75.0" text="Tax Code" />
+                        <TableColumn fx:id="chargeStatusColumn" editable="false" prefWidth="75.0" text="Status" />
+                     </columns>
+                  </TableView>
+               </content>
+            </Tab>
+            <Tab closable="false" text="Payment Entries">
+               <content>
+                  <TableView fx:id="paymentEntryTable">
+                    <columns>
+                      <TableColumn prefWidth="75.0" text="Id" />
+                      <TableColumn prefWidth="75.0" text="Date" />
+                        <TableColumn prefWidth="75.0" text="From" />
+                        <TableColumn prefWidth="75.0" text="To" />
+                        <TableColumn prefWidth="75.0" text="Net" />
+                        <TableColumn prefWidth="75.0" text="Vat" />
+                        <TableColumn prefWidth="75.0" text="Total" />
+                        <TableColumn prefWidth="75.0" text="Nominal Code" />
+                        <TableColumn prefWidth="75.0" text="Tax Code" />
+                    </columns>
+                  </TableView>
+               </content>
+            </Tab>
+         </tabs>
+      </TabPane>
+      <BorderPane>
+         <left>
+            <Button mnemonicParsing="false" onAction="#handleHomeOpen" text="Home" BorderPane.alignment="CENTER" />
+         </left>
+         <right>
+            <HBox spacing="4.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#handleClose" text="Close" />
+               </children>
+            </HBox>
+         </right>
+      </BorderPane>
+   </children>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
+</VBox>

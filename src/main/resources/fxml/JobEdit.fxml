@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<VBox spacing="4.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.screen.JobEdit">
+   <children>
+      <Label text="JOB EDIT">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <GridPane hgap="4.0" vgap="4.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="NEVER" />
+          <ColumnConstraints hgrow="ALWAYS" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints vgrow="NEVER" />
+            <RowConstraints vgrow="NEVER" />
+            <RowConstraints vgrow="NEVER" />
+        </rowConstraints>
+         <children>
+            <Label text="Id" />
+            <Label fx:id="idField" text="&lt;id&gt;" GridPane.columnIndex="1" />
+            <Label text="Date" GridPane.rowIndex="1" />
+            <DatePicker fx:id="jobDateField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label text="Driver" GridPane.rowIndex="2" />
+            <Button fx:id="driverField" mnemonicParsing="false" onAction="#handleSelectDriver" prefWidth="100.0" text="Select Driver" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+         </children>
+      </GridPane>
+      <VBox VBox.vgrow="ALWAYS">
+         <children>
+            <ToolBar>
+              <items>
+                <Button mnemonicParsing="false" onAction="#handleAddRate" text="Add" />
+                  <Button fx:id="editRateButton" disable="true" mnemonicParsing="false" onAction="#handleEditRate" text="Edit" />
+                  <Button fx:id="removeRateButton" disable="true" mnemonicParsing="false" onAction="#handleRemoveRate" text="Remove" />
+              </items>
+            </ToolBar>
+            <TableView fx:id="rateTable" VBox.vgrow="ALWAYS">
+              <columns>
+                <TableColumn fx:id="rateIdColumn" editable="false" prefWidth="75.0" text="Id" />
+                <TableColumn fx:id="rateNetColumn" editable="false" prefWidth="75.0" text="Net" />
+                  <TableColumn fx:id="rateVatColumn" editable="false" prefWidth="75.0" text="Vat" />
+                  <TableColumn fx:id="rateTotalColumn" editable="false" prefWidth="75.0" text="Total" />
+                  <TableColumn fx:id="rateNominalCodeColumn" editable="false" prefWidth="75.0" text="Nominal Code" />
+                  <TableColumn fx:id="rateTaxCodeColumn" editable="false" prefWidth="75.0" text="Tax Code" />
+              </columns>
+            </TableView>
+         </children>
+      </VBox>
+      <BorderPane>
+         <left>
+            <Button mnemonicParsing="false" onAction="#handleHome" text="Home" BorderPane.alignment="CENTER" />
+         </left>
+         <right>
+            <HBox spacing="4.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#handleApply" text="Apply" />
+                  <Button mnemonicParsing="false" onAction="#handleClose" text="Close" />
+               </children>
+            </HBox>
+         </right>
+      </BorderPane>
+   </children>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
+</VBox>

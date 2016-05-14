@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox spacing="4.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.screen.JobBrowser">
+   <children>
+      <HBox spacing="4.0">
+         <children>
+            <DatePicker fx:id="dateFrom" prefWidth="100.0" promptText="Date From" />
+            <DatePicker fx:id="dateTo" prefWidth="100.0" promptText="Date To" />
+            <Button fx:id="selectDriver" mnemonicParsing="false" onAction="#handleSelectDriver" prefWidth="100.0" text="Driver" />
+            <Button mnemonicParsing="false" onAction="#handleSearch" text="Search" />
+         </children>
+      </HBox>
+      <VBox VBox.vgrow="ALWAYS">
+         <children>
+            <ToolBar>
+               <items>
+                  <Button mnemonicParsing="false" onAction="#handleAddJob" text="Add" />
+                  <Button fx:id="editJobButton" disable="true" mnemonicParsing="false" onAction="#handleEditJob" text="Edit" />
+               </items>
+            </ToolBar>
+            <TableView fx:id="table" VBox.vgrow="ALWAYS">
+              <columns>
+                <TableColumn fx:id="idColumn" editable="false" minWidth="-1.0" text="Id" />
+                  <TableColumn fx:id="jobDateColumn" editable="false" minWidth="-1.0" text="Job Date" />
+                  <TableColumn fx:id="driverColumn" editable="false" minWidth="-1.0" text="Driver" />
+              </columns>
+            </TableView>
+         </children>
+      </VBox>
+      <Button mnemonicParsing="false" onAction="#handleHome" text="Home" />
+   </children>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
+</VBox>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox spacing="4.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.screen.PaymentReasonBrowser">
+   <children>
+      <VBox VBox.vgrow="ALWAYS">
+         <children>
+            <ToolBar VBox.vgrow="NEVER">
+               <items>
+                  <Button mnemonicParsing="false" onAction="#handleAddPaymentReason" text="Add" />
+                  <Button fx:id="editPaymentReasonButton" disable="true" mnemonicParsing="false" onAction="#handleEditPaymentReason" text="Edit" />
+               </items>
+            </ToolBar>
+            <TableView fx:id="table" VBox.vgrow="ALWAYS">
+              <columns>
+                <TableColumn fx:id="idColumn" editable="false" minWidth="-1.0" prefWidth="75.0" text="Id" />
+                  <TableColumn fx:id="nameColumn" editable="false" minWidth="-1.0" prefWidth="75.0" text="Name" />
+                  <TableColumn fx:id="driverColumn" editable="false" minWidth="-1.0" prefWidth="75.0" text="Driver" />
+                  <TableColumn fx:id="typeColumn" editable="false" minWidth="-1.0" prefWidth="75.0" text="Type" />
+              </columns>
+            </TableView>
+         </children>
+      </VBox>
+      <Button mnemonicParsing="false" onAction="#handleHome" text="Home" />
+   </children>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
+</VBox>

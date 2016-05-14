@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.*?>
+<GridPane hgap="4.0" vgap="4.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.dialog.DriverEdit">
+   <children>
+      <Label text="Id" />
+      <Label fx:id="id" text="&lt;id&gt;" GridPane.columnIndex="1" />
+      <Label text="Name" GridPane.rowIndex="1" />
+      <TextField fx:id="name" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+   </children>
+   <columnConstraints>
+      <ColumnConstraints hgrow="NEVER" />
+      <ColumnConstraints hgrow="ALWAYS" />
+   </columnConstraints>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
+   <rowConstraints>
+      <RowConstraints vgrow="NEVER" />
+      <RowConstraints vgrow="NEVER" />
+   </rowConstraints>
+</GridPane>
