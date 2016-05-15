@@ -9,7 +9,9 @@
          <children>
             <DatePicker fx:id="dateFrom" prefWidth="100.0" promptText="Date From" />
             <DatePicker fx:id="dateTo" prefWidth="100.0" promptText="Date To" />
-            <Button fx:id="selectDriver" mnemonicParsing="false" onAction="#handleSelectDriver" prefWidth="100.0" text="Driver" />
+            <Button fx:id="selectDriver" mnemonicParsing="false" onAction="#handleSelectDriver" prefWidth="100.0" text="Select Driver..." />
+            <Separator orientation="VERTICAL" />
+            <Button mnemonicParsing="false" onAction="#handleClear" text="Clear" />
             <Button mnemonicParsing="false" onAction="#handleSearch" text="Search" />
          </children>
       </HBox>

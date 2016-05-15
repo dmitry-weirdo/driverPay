@@ -17,7 +17,7 @@
       <RowConstraints vgrow="NEVER" />
   </rowConstraints>
    <children>
-      <Label text="Label" />
+      <Label text="Id" />
       <Label fx:id="id" text="&lt;id&gt;" GridPane.columnIndex="1" />
       <Label text="Net" GridPane.rowIndex="1" />
       <Label text="Vat" GridPane.rowIndex="2" />

@@ -9,13 +9,17 @@
          <children>
             <DatePicker fx:id="dateFrom" prefWidth="100.0" promptText="Date From" />
             <DatePicker fx:id="dateTo" prefWidth="100.0" promptText="Date To" />
+            <Button fx:id="driver" mnemonicParsing="false" onAction="#handleSelectDriver" text="Select Driver..." />
             <CheckBox fx:id="processed" mnemonicParsing="false" text="Processed" />
+            <Separator orientation="VERTICAL" />
+            <Button mnemonicParsing="false" onAction="#handleClear" text="Clear" />
             <Button mnemonicParsing="false" onAction="#handleSearch" text="Search" />
          </children>
       </HBox>
       <TableView fx:id="table" VBox.vgrow="ALWAYS">
          <columns>
             <TableColumn fx:id="idColumn" editable="false" minWidth="-1.0" text="Id" />
+            <TableColumn fx:id="driverColumn" editable="false" minWidth="-1.0" text="Driver" />
             <TableColumn fx:id="paymentDateColumn" editable="false" minWidth="-1.0" text="Payment Date" />
             <TableColumn fx:id="statusColumn" editable="false" minWidth="-1.0" text="Processed" />
          </columns>
@@ -27,8 +31,8 @@
          <right>
             <HBox spacing="4.0">
                <children>
-                  <Button fx:id="viewButton" mnemonicParsing="false" onAction="#handleView" text="View transactions" />
-                  <Button fx:id="processButton" mnemonicParsing="false" onAction="#handleProcess" text="Process..." BorderPane.alignment="CENTER" />
+                  <Button fx:id="viewButton" disable="true" mnemonicParsing="false" onAction="#handleView" text="View..." />
+                  <Button fx:id="processButton" disable="true" mnemonicParsing="false" onAction="#handleProcess" text="Process..." BorderPane.alignment="CENTER" />
                </children>
             </HBox>
          </right>

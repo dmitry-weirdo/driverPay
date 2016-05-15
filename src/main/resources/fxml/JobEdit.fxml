@@ -27,7 +27,7 @@
             <Label text="Date" GridPane.rowIndex="1" />
             <DatePicker fx:id="jobDateField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Label text="Driver" GridPane.rowIndex="2" />
-            <Button fx:id="driverField" mnemonicParsing="false" onAction="#handleSelectDriver" prefWidth="100.0" text="Select Driver" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Button fx:id="driverField" mnemonicParsing="false" onAction="#handleSelectDriver" prefWidth="175.0" text="Select Driver" GridPane.columnIndex="1" GridPane.rowIndex="2" />
          </children>
       </GridPane>
       <VBox VBox.vgrow="ALWAYS">
@@ -58,8 +58,8 @@
          <right>
             <HBox spacing="4.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button mnemonicParsing="false" onAction="#handleApply" text="Apply" />
-                  <Button mnemonicParsing="false" onAction="#handleClose" text="Close" />
+                  <Button defaultButton="true" mnemonicParsing="false" onAction="#handleApply" text="Apply" />
+                  <Button cancelButton="true" mnemonicParsing="false" onAction="#handleClose" text="Close" />
                </children>
             </HBox>
          </right>

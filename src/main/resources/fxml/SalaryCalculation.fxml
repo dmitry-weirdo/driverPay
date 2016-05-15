@@ -9,12 +9,18 @@
          <children>
             <DatePicker fx:id="dateTo" prefWidth="100.0" promptText="Date To" />
             <DatePicker fx:id="dateFrom" prefWidth="100.0" promptText="Date From" />
+            <Button fx:id="driver" mnemonicParsing="false" onAction="#handleSelectDriver" prefWidth="100.0" text="Select Driver..." />
+            <ComboBox fx:id="type" prefWidth="100.0" promptText="Type" />
+            <ComboBox fx:id="status" prefWidth="100.0" promptText="Status" />
+            <Separator orientation="VERTICAL" />
+            <Button mnemonicParsing="false" onAction="#handleClear" text="Clear" />
             <Button mnemonicParsing="false" onAction="#handleSearch" text="Search" />
          </children>
       </HBox>
       <TableView fx:id="table" VBox.vgrow="ALWAYS">
          <columns>
             <TableColumn fx:id="idColumn" editable="false" minWidth="-1.0" text="Id" />
+            <TableColumn fx:id="driverColumn" editable="false" minWidth="-1.0" text="Driver" />
             <TableColumn fx:id="typeColumn" editable="false" minWidth="-1.0" text="Type" />
             <TableColumn fx:id="statusColumn" editable="false" minWidth="-1.0" text="Status" />
             <TableColumn fx:id="dateColumn" editable="false" minWidth="-1.0" text="Date" />

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox spacing="4.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.dialog.PaymentGenerationWizard">
+   <children>
+      <ChoiceBox fx:id="type" prefWidth="100.0" />
+      <HBox alignment="CENTER_LEFT" spacing="4.0">
+         <children>
+            <Label prefWidth="50.0" text="Value" />
+            <TextField fx:id="net" prefWidth="50.0" promptText="Net" />
+            <TextField fx:id="vat" prefWidth="50.0" promptText="VAT" />
+            <TextField fx:id="total" prefWidth="50.0" promptText="Total" />
+         </children>
+      </HBox>
+      <HBox fx:id="incrementalTotalPane" alignment="CENTER_LEFT" spacing="4.0">
+         <children>
+            <Label prefWidth="50.0" text="Total" />
+            <TextField fx:id="totalNet" prefWidth="50.0" promptText="Net" />
+            <TextField fx:id="totalVat" prefWidth="50.0" promptText="VAT" />
+            <TextField fx:id="gross" prefWidth="50.0" promptText="Total" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_LEFT" spacing="4.0">
+         <children>
+            <Label prefWidth="50.0" text="Every" />
+            <TextField fx:id="frequency" prefWidth="30.0" />
+            <ComboBox fx:id="frequencyPeriod" prefWidth="70.0" />
+         </children>
+      </HBox>
+      <HBox fx:id="repeatDurationPane" alignment="CENTER_LEFT" spacing="4.0">
+         <children>
+            <Label prefWidth="50.0" text="For next" />
+            <TextField fx:id="duration" prefWidth="30.0" />
+            <ComboBox fx:id="durationPeriod" prefWidth="70.0" />
+         </children>
+      </HBox>
+   </children>
+</VBox>
