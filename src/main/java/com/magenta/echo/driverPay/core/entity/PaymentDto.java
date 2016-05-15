@@ -16,6 +16,7 @@ public class PaymentDto {
 	private PaymentStatus status = PaymentStatus.NONE;
 	private LocalDate plannedDate;
 	private Long driverId;
+	private String driverValue;
 	private Double net;
 	private Double vat;
 	private Double total;
@@ -31,6 +32,7 @@ public class PaymentDto {
 			final PaymentStatus status,
 			final LocalDate plannedDate,
 			final Long driverId,
+			final String driverValue,
 			final Double net,
 			final Double vat,
 			final Double total,
@@ -42,6 +44,7 @@ public class PaymentDto {
 		this.status = status;
 		this.plannedDate = plannedDate;
 		this.driverId = driverId;
+		this.driverValue = driverValue;
 		this.net = net;
 		this.vat = vat;
 		this.total = total;
@@ -87,6 +90,14 @@ public class PaymentDto {
 
 	public void setDriverId(Long driverId) {
 		this.driverId = driverId;
+	}
+
+	public String getDriverValue() {
+		return driverValue;
+	}
+
+	public void setDriverValue(String driverValue) {
+		this.driverValue = driverValue;
 	}
 
 	public Double getNet() {

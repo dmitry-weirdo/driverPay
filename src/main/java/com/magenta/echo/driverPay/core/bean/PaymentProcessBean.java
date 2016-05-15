@@ -34,6 +34,8 @@ public class PaymentProcessBean extends AbstractBean {
 
 	private static final DataManager.ResultSetReader<PaymentDocumentDto> PAYMENT_DOCUMENT_READER = resultSet -> new PaymentDocumentDto(
 			resultSet.getLong("id"),
+			resultSet.getLong("driver_id"),
+			resultSet.getString("driver_value"),
 			LocalDate.ofEpochDay(resultSet.getLong("payment_date")),
 			resultSet.getLong("status") == 1
 	);
@@ -42,22 +44,32 @@ public class PaymentProcessBean extends AbstractBean {
 		return Context.get().getPaymentBean();
 	}
 
-	public List<PaymentDocumentDto> loadPaymentDocumentList(final LocalDate dateFrom, final LocalDate dateTo, final boolean processed)	{
+	public List<PaymentDocumentDto> loadPaymentDocumentList(
+			final LocalDate dateFrom,
+			final LocalDate dateTo,
+			final Long driverId,
+			final boolean processed
+	)	{
 
 		return getDataManager().executeQuery(
 				"select " +
 				"pd.id, " +
 				"pd.payment_date, " +
+				"pd.driver_id, " +
+				"d.name driver_value, " +
 				"pd.status " +
 				"from payment_documents pd " +
+				"join drivers d on pd.driver_id = d.id " +
 				"where " +
 				"pd.payment_date > ? " +
 				"and pd.payment_date <= ? " +
+				(driverId == null ? "and 1=? " : "and pd.driver_id = ? ") +
 				"and pd.status = ?",
 				preparedStatement -> {
 					preparedStatement.setLong(1, Utils.startDateToLong(dateFrom));
 					preparedStatement.setLong(2, Utils.endDateToLong(dateTo));
-					preparedStatement.setLong(3, processed ? 1 : 0);
+					preparedStatement.setLong(3, driverId == null ? 1 : driverId);
+					preparedStatement.setLong(4, processed ? 1 : 0);
 				},
 				PAYMENT_DOCUMENT_READER
 		);
@@ -68,11 +80,14 @@ public class PaymentProcessBean extends AbstractBean {
 		return getDataManager().executeSingleQuery(
 				"select " +
 				"pd.id, " +
+				"pd.driver_id, " +
+				"d.name driver_value, " +
 				"pd.payment_date, " +
 				"pd.status " +
 				"from payment_documents pd " +
+				"join drivers d on pd.driver_id = d.id " +
 				"where " +
-				"pd.id > ? ",
+				"pd.id = ? ",
 				preparedStatement -> preparedStatement.setLong(1,id),
 				PAYMENT_DOCUMENT_READER
 		);
@@ -131,9 +146,9 @@ public class PaymentProcessBean extends AbstractBean {
 				"\tt.total\n" +
 				"from transactions t\n" +
 				"left join balances fb on t.from_id = fb.id\n" +
-				"left join drivers fd on (fb.type = 'DRIVER' and fd.salary_balance_id) or (fb.type = 'DEPOSIT' and fd.deposit_balance_id)\n" +
-				"left join balances tb on t.to_id = fb.id\n" +
-				"left join drivers td on (tb.type = 'DRIVER' and td.salary_balance_id) or (tb.type = 'DEPOSIT' and td.deposit_balance_id)\n" +
+				"left join drivers fd on (fb.type = 'DRIVER' and fd.salary_balance_id = fb.id) or (fb.type = 'DEPOSIT' and fd.deposit_balance_id = fb.id)\n" +
+				"left join balances tb on t.to_id = tb.id\n" +
+				"left join drivers td on (tb.type = 'DRIVER' and td.salary_balance_id = tb.id) or (tb.type = 'DEPOSIT' and td.deposit_balance_id = tb.id)\n" +
 				"where t.payment_id = ?",
 				preparedStatement -> preparedStatement.setLong(1,paymentId),
 				TRANSACTION_READER
@@ -161,9 +176,9 @@ public class PaymentProcessBean extends AbstractBean {
 				"from transactions t\n" +
 				"join payments p on t.payment_id = p.id\n" +
 				"left join balances fb on t.from_id = fb.id\n" +
-				"left join drivers fd on (fb.type = 'DRIVER' and fd.salary_balance_id) or (fb.type = 'DEPOSIT' and fd.deposit_balance_id)\n" +
+				"left join drivers fd on (fb.type = 'DRIVER' and fd.salary_balance_id = fb.id) or (fb.type = 'DEPOSIT' and fd.deposit_balance_id = fb.id)\n" +
 				"left join balances tb on t.to_id = tb.id\n" +
-				"left join drivers td on (tb.type = 'DRIVER' and td.salary_balance_id) or (tb.type = 'DEPOSIT' and td.deposit_balance_id)\n" +
+				"left join drivers td on (tb.type = 'DRIVER' and td.salary_balance_id = tb.id) or (tb.type = 'DEPOSIT' and td.deposit_balance_id = tb.id)\n" +
 				"where p.payment_document_id = ?",
 		preparedStatement -> preparedStatement.setLong(1,paymentDocumentId),
 		TRANSACTION_READER

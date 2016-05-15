@@ -6,6 +6,8 @@ import com.magenta.echo.driverpay.core.enums.PaymentStatus;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Project: Driver Pay
@@ -17,11 +19,24 @@ public class SalaryCalculationBean extends AbstractBean {
 	public void makePaymentDocuments(final List<PaymentDto> paymentList)	{
 		try(final ConnectionExt connection = getDataManager().getConnection())	{
 
-			final Long paymentDocumentId = addPaymentDocument(LocalDate.now());
-			paymentList
+			final Map<Long,List<PaymentDto>> driverToPaymentsMap = paymentList
 					.stream()
-					.filter(payment -> payment.getStatus().equals(PaymentStatus.NONE))
-					.forEach(payment -> linkPaymentDocumentToPayments(payment.getId(), paymentDocumentId));
+					.collect(Collectors
+							.groupingBy(
+									PaymentDto::getDriverId,
+									Collectors.toList()
+							)
+					);
+
+			driverToPaymentsMap.forEach((driverId, driverPaymentList) -> {
+
+				final Long paymentDocumentId = addPaymentDocument(driverId,LocalDate.now());
+				driverPaymentList
+						.stream()
+						.filter(payment -> payment.getStatus().equals(PaymentStatus.NONE))
+						.forEach(payment -> linkPaymentDocumentToPayments(payment.getId(), paymentDocumentId));
+
+			});
 
 			connection.success();
 
@@ -33,11 +48,14 @@ public class SalaryCalculationBean extends AbstractBean {
 
 	//
 
-	private Long addPaymentDocument(final LocalDate paymentDate)	{
+	private Long addPaymentDocument(final Long driverId, final LocalDate paymentDate)	{
 
 		return getDataManager().executeInsert(
-				"insert into payment_documents (id,payment_date,status) values (null,?,0)",
-				preparedStatement -> preparedStatement.setLong(1,paymentDate.toEpochDay())
+				"insert into payment_documents (id,driver_id,payment_date,status) values (null,?,?,0)",
+				preparedStatement -> {
+					preparedStatement.setLong(1,driverId);
+					preparedStatement.setLong(2,paymentDate.toEpochDay());
+				}
 		);
 
 	}

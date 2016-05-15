@@ -74,6 +74,7 @@ public class Scheme {
 				"\tid INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
 				"\tpayment_reason_id INTEGER,\n" +
 				"\tjob_id INTEGER,\n" +
+				"\tdriver_id INTEGER,\n" +
 				"\ttype TEXT,\n" +
 				"\tstatus TEXT,\n" +
 				"\tpayment_document_id INTEGER,\n" +
@@ -85,6 +86,7 @@ public class Scheme {
 				"\ttax_code TEXT,\n" +
 				"\tFOREIGN KEY (payment_reason_id) REFERENCES payment_reasons (id)\n" +
 				"\tFOREIGN KEY (job_id) REFERENCES jobs (id)\n" +
+				"\tFOREIGN KEY (driver_id) REFERENCES drivers (id)\n" +
 				"\tFOREIGN KEY (payment_document_id) REFERENCES payment_documents (id)\n" +
 				");"
 		);
@@ -115,7 +117,9 @@ public class Scheme {
 				"CREATE TABLE payment_documents (\n" +
 				"\tid INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
 				"\tpayment_date INTEGER,\n" +
-				"\tstatus INTEGER\n" +
+				"\tdriver_id INTEGER,\n" +
+				"\tstatus INTEGER,\n" +
+				"\tFOREIGN KEY (driver_id) REFERENCES drivers (id)\n" +
 				");"
 		);
 
@@ -140,7 +144,6 @@ public class Scheme {
 
 	private static void initVersion2(final DataManager dataManager)	{
 
-
-		dataManager.executeUpdate("pragma user_version = 2");
+//		dataManager.executeUpdate("pragma user_version = 2");
 	}
 }

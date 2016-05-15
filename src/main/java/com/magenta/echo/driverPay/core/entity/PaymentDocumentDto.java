@@ -9,14 +9,18 @@ import java.time.LocalDate;
  */
 public class PaymentDocumentDto {
 	private Long id;
+	private Long driverId;
+	private String driverValue;
 	private LocalDate paymentDate;
 	private Boolean processed;
 
 	public PaymentDocumentDto() {
 	}
 
-	public PaymentDocumentDto(Long id, LocalDate paymentDate, Boolean processed) {
+	public PaymentDocumentDto(Long id, Long driverId, String driverValue, LocalDate paymentDate, Boolean processed) {
 		this.id = id;
+		this.driverId = driverId;
+		this.driverValue = driverValue;
 		this.paymentDate = paymentDate;
 		this.processed = processed;
 	}
@@ -27,6 +31,22 @@ public class PaymentDocumentDto {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public Long getDriverId() {
+		return driverId;
+	}
+
+	public void setDriverId(Long driverId) {
+		this.driverId = driverId;
+	}
+
+	public String getDriverValue() {
+		return driverValue;
+	}
+
+	public void setDriverValue(String driverValue) {
+		this.driverValue = driverValue;
 	}
 
 	public LocalDate getPaymentDate() {

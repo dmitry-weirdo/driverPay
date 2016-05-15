@@ -9,6 +9,7 @@ import com.magenta.echo.driverpay.core.enums.PaymentType;
 import com.magenta.echo.driverpay.ui.Utils;
 import com.magenta.echo.driverpay.ui.cellfactory.TransactionTypeListCell;
 import com.magenta.echo.driverpay.ui.dialog.PaymentEdit;
+import com.magenta.echo.driverpay.ui.dialog.PaymentGenerationWizard;
 import com.magenta.echo.driverpay.ui.dialog.SelectDriver;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
@@ -83,10 +84,11 @@ public class PaymentReasonEdit extends Screen {
 		paymentTaxCodeColumn.setCellValueFactory(new PropertyValueFactory<>("taxCode"));
 		statusColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getStatus().getLabel()));
 
-
+		paymentTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		paymentTable.getSelectionModel().selectedItemProperty().addListener(param -> {
 			final boolean isNotSelected = paymentTable.getSelectionModel().isEmpty();
-			editPaymentButton.setDisable(isNotSelected);
+			final boolean isNonSingleSelection = paymentTable.getSelectionModel().getSelectedItems().size() != 1;
+			editPaymentButton.setDisable(isNonSingleSelection);
 			removePaymentButton.setDisable(isNotSelected);
 		});
 	}
@@ -106,7 +108,9 @@ public class PaymentReasonEdit extends Screen {
 	private void fillUI()	{
 		idField.setText(Utils.toString(paymentReasonDto.getId()));
 		nameField.setText(paymentReasonDto.getName());
-		driverField.setText(Utils.toString(paymentReasonDto.getDriverValue()));
+		if(paymentReasonDto.getDriverId() != null) {
+			driverField.setText(Utils.toString(paymentReasonDto.getDriverValue()));
+		}
 		typeField.getSelectionModel().select(paymentReasonDto.getType());
 
 		paymentTable.getItems().setAll(paymentDtoList);
@@ -157,9 +161,9 @@ public class PaymentReasonEdit extends Screen {
 		if(paymentTable.getSelectionModel().isEmpty())	{
 			return;
 		}
-		final PaymentDto selectedPaymentDto = paymentTable.getSelectionModel().getSelectedItem();
+		final List<PaymentDto> selectedPaymentList = paymentTable.getSelectionModel().getSelectedItems();
 
-		paymentTable.getItems().remove(selectedPaymentDto);
+		selectedPaymentList.forEach(payment -> paymentTable.getItems().remove(payment));
 	}
 
 	@FXML
@@ -174,4 +178,13 @@ public class PaymentReasonEdit extends Screen {
 		Context.get().openScreen(new PaymentReasonBrowser());
 	}
 
+	@FXML
+	private void handleGeneratePaymentsByTemplate(ActionEvent event) {
+		final Optional<List<PaymentDto>> result = Context.get().openDialogAndWait(new PaymentGenerationWizard(paymentTable.getItems()));
+		if(!result.isPresent())	{
+			return;
+		}
+
+		paymentTable.getItems().addAll(result.get());
+	}
 }

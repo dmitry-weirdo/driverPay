@@ -31,7 +31,7 @@ public class SelectDriver extends DialogExt<DriverDto> {
 		driverList.setCellFactory(param -> new DriverListCell());
 		getDialog().setTitle("Select Driver");
 		getDialog().setHeaderText(null);
-		getDialog().getDialogPane().getButtonTypes().addAll(ButtonType.APPLY, ButtonType.CANCEL);
+		getDialog().getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 	}
 
 	private void loadData()	{
@@ -42,7 +42,7 @@ public class SelectDriver extends DialogExt<DriverDto> {
 
 	@Override
 	protected DriverDto resultConverter(ButtonType buttonType) {
-		if(ButtonType.APPLY.equals(buttonType))	{
+		if(ButtonType.OK.equals(buttonType))	{
 			final DriverDto selectedDriverDto = driverList.getSelectionModel().getSelectedItem();
 			if(selectedDriverDto != null)	{
 				return selectedDriverDto;

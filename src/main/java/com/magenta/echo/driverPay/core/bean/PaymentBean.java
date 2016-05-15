@@ -34,6 +34,7 @@ public class PaymentBean extends AbstractBean {
 			PaymentStatus.valueOf(resultSet.getString("status")),
 			LocalDate.ofEpochDay(resultSet.getLong("planned_date")),
 			resultSet.getLong("driver_id"),
+			resultSet.getString("driver_value"),
 			resultSet.getDouble("net"),
 			resultSet.getDouble("vat"),
 			resultSet.getDouble("total"),
@@ -41,7 +42,7 @@ public class PaymentBean extends AbstractBean {
 			resultSet.getString("tax_code")
 	);
 
-    public List<PaymentReasonDto> loadPaymentReasonList()   {
+    public List<PaymentReasonDto> loadPaymentReasonList(final Long driverId, final PaymentType paymentType)   {
 		return getDataManager().executeQuery(
 				"select\n" +
 				"pr.id,\n" +
@@ -50,8 +51,25 @@ public class PaymentBean extends AbstractBean {
 				"d.name driver_value,\n" +
 				"pr.type\n" +
 				"from payment_reasons pr\n" +
-				"join drivers d on pr.driver_id = d.id",
-				preparedStatement -> {},
+				"join drivers d on pr.driver_id = d.id\n" +
+				"where (? is null or pr.driver_id = ?)\n" +
+				" and (? is null or pr.type = ?)",
+				preparedStatement -> {
+					if(driverId == null)	{
+						preparedStatement.setNull(1,Types.INTEGER);
+						preparedStatement.setNull(2,Types.INTEGER);
+					}else {
+						preparedStatement.setLong(1, driverId);
+						preparedStatement.setLong(2, driverId);
+					}
+					if(paymentType == null)	{
+						preparedStatement.setNull(3,Types.INTEGER);
+						preparedStatement.setNull(4,Types.INTEGER);
+					}else {
+						preparedStatement.setString(3,paymentType.name());
+						preparedStatement.setString(4,paymentType.name());
+					}
+				},
 				PAYMENT_REASON_READER
 		);
     }
@@ -85,41 +103,65 @@ public class PaymentBean extends AbstractBean {
 				"p.type,\n" +
 				"p.status,\n" +
 				"p.planned_date,\n" +
-				"ifnull(j.driver_id,pr.driver_id) driver_id,\n" +
+				"p.driver_id,\n" +
+				"d.name driver_value,\n" +
 				"p.net,\n" +
 				"p.vat,\n" +
 				"p.total,\n" +
 				"p.nominal_code,\n" +
 				"p.tax_code\n" +
 				"from payments p\n" +
-				"left join payment_reasons pr on p.payment_reason_id = pr.id\n" +
-				"left join jobs j on p.job_id = j.id\n" +
+				"left join drivers d on p.driver_id = d.id\n" +
 				"where p.payment_reason_id = ?",
 				preparedStatement -> preparedStatement.setLong(1,paymentReasonId),
 				PAYMENT_READER
 		);
 	}
 
-	public List<PaymentDto> loadPaymentList(final LocalDate dateFrom, final LocalDate dateTo)	{
+	public List<PaymentDto> loadPaymentList(
+			final LocalDate dateFrom,
+			final LocalDate dateTo,
+			final Long driverId,
+			final PaymentType paymentType,
+			final PaymentStatus paymentStatus
+	)	{
 		return getDataManager().executeQuery(
 				"select\n" +
 				"p.id,\n" +
 				"p.type,\n" +
 				"p.status,\n" +
 				"p.planned_date,\n" +
-				"ifnull(j.driver_id,pr.driver_id) driver_id,\n" +
+				"p.driver_id,\n" +
+				"d.name driver_value,\n" +
 				"p.net,\n" +
 				"p.vat,\n" +
 				"p.total,\n" +
 				"p.nominal_code,\n" +
 				"p.tax_code\n" +
 				"from payments p\n" +
-				"left join payment_reasons pr on p.payment_reason_id = pr.id\n" +
-				"left join jobs j on p.job_id = j.id\n" +
-				"where p.planned_date > ? and p.planned_date <= ?",
+				"left join drivers d on p.driver_id = d.id\n" +
+				"where p.planned_date > ? and p.planned_date <= ? \n" +
+				"and (? is null or p.type = ?) \n" +
+				"and (? is null or p.status = ?)\n" +
+				(driverId == null ? "and 1=? " : " and p.driver_id = ?"),
 				preparedStatement -> {
 					preparedStatement.setLong(1, Utils.startDateToLong(dateFrom));
 					preparedStatement.setLong(2, Utils.endDateToLong(dateTo));
+					if(paymentType == null) {			// todo simplify it
+						preparedStatement.setNull(3,Types.INTEGER);
+						preparedStatement.setNull(4,Types.INTEGER);
+					}else {
+						preparedStatement.setString(3,paymentType.name());
+						preparedStatement.setString(4,paymentType.name());
+					}
+					if(paymentStatus == null)	{		// todo simplify it
+						preparedStatement.setNull(5,Types.INTEGER);
+						preparedStatement.setNull(6,Types.INTEGER);
+					}else {
+						preparedStatement.setString(5,paymentStatus.name());
+						preparedStatement.setString(6,paymentStatus.name());
+					}
+					preparedStatement.setLong(7,driverId==null ? 1 : driverId);
 				},
 				PAYMENT_READER
 		);
@@ -132,15 +174,15 @@ public class PaymentBean extends AbstractBean {
 				"p.type,\n" +
 				"p.status,\n" +
 				"p.planned_date,\n" +
-				"ifnull(j.driver_id,pr.driver_id) driver_id,\n" +
+				"p.driver_id,\n" +
+				"d.name driver_value,\n" +
 				"p.net,\n" +
 				"p.vat,\n" +
 				"p.total,\n" +
 				"p.nominal_code,\n" +
 				"p.tax_code\n" +
 				"from payments p\n" +
-				"left join payment_reasons pr on p.payment_reason_id = pr.id\n" +
-				"left join jobs j on p.job_id = j.id\n" +
+				"left join drivers d on p.driver_id = d.id\n" +
 				"where p.payment_document_id = ?",
 				preparedStatement -> preparedStatement.setLong(1,paymentDocumentId),
 				PAYMENT_READER
@@ -152,6 +194,7 @@ public class PaymentBean extends AbstractBean {
 
 			for(final PaymentDto paymentDto : paymentDtoList) {
 				paymentDto.setType(paymentReasonDto.getType());
+				paymentDto.setDriverId(paymentReasonDto.getDriverId());
 			}
 
 			if(paymentReasonDto.getId() == null)	{
@@ -193,6 +236,7 @@ public class PaymentBean extends AbstractBean {
 			addPayment(
 					paymentReasonId,
 					jobId,
+					paymentDto.getDriverId(),
 					paymentDto.getType(),
 					paymentDto.getStatus(),
 					paymentDto.getPlannedDate(),
@@ -207,6 +251,7 @@ public class PaymentBean extends AbstractBean {
 					paymentDto.getId(),
 					jobId,
 					paymentReasonId,
+					paymentDto.getDriverId(),
 					paymentDto.getType(),
 					paymentDto.getStatus(),
 					paymentDto.getPlannedDate(),
@@ -267,6 +312,7 @@ public class PaymentBean extends AbstractBean {
 	private void addPayment(
 			final Long paymentReasonId,
 			final Long jobId,
+			final Long driverId,
 			final PaymentType paymentType,
 			final PaymentStatus paymentStatus,
 			final LocalDate plannedDate,
@@ -278,8 +324,8 @@ public class PaymentBean extends AbstractBean {
 	)	{
 		getDataManager().executeInsert(
 				"insert into payments " +
-						"(id,payment_reason_id,job_id,type,status,planned_date,net,vat,total,nominal_code,tax_code) " +
-						"values (null,?,?,?,?,?,?,?,?,?,?)",
+						"(id,payment_reason_id,job_id,driver_id,type,status,planned_date,net,vat,total,nominal_code,tax_code) " +
+						"values (null,?,?,?,?,?,?,?,?,?,?,?)",
 				preparedStatement -> {
 					if(paymentReasonId != null) {
 						preparedStatement.setLong(1, paymentReasonId);
@@ -291,14 +337,15 @@ public class PaymentBean extends AbstractBean {
 					}else {
 						preparedStatement.setNull(2, Types.INTEGER);
 					}
-					preparedStatement.setString(3,paymentType.name());
-					preparedStatement.setString(4,paymentStatus.name());
-					preparedStatement.setLong(5,plannedDate.toEpochDay());
-					preparedStatement.setDouble(6,net);
-					preparedStatement.setDouble(7,vat);
-					preparedStatement.setDouble(8,total);
-					preparedStatement.setString(9,nominalCode);
-					preparedStatement.setString(10,taxCode);
+					preparedStatement.setLong(3,driverId);
+					preparedStatement.setString(4,paymentType.name());
+					preparedStatement.setString(5,paymentStatus.name());
+					preparedStatement.setLong(6,plannedDate.toEpochDay());
+					preparedStatement.setDouble(7,net);
+					preparedStatement.setDouble(8,vat);
+					preparedStatement.setDouble(9,total);
+					preparedStatement.setString(10,nominalCode);
+					preparedStatement.setString(11,taxCode);
 				}
 		);
 	}
@@ -307,6 +354,7 @@ public class PaymentBean extends AbstractBean {
 			final Long id,
 			final Long paymentReasonId,
 			final Long jobId,
+			final Long driverId,
 			final PaymentType paymentType,
 			final PaymentStatus paymentStatus,
 			final LocalDate plannedDate,
@@ -320,6 +368,7 @@ public class PaymentBean extends AbstractBean {
 				"update payments set " +
 				"payment_reason_id = ?, " +
 				"job_id = ?, " +
+				"driver_id = ?, " +
 				"planned_date = ?, " +
 				"type = ?, " +
 				"status = ?, " +
@@ -340,15 +389,16 @@ public class PaymentBean extends AbstractBean {
 					}else {
 						preparedStatement.setNull(2, Types.INTEGER);
 					}
-					preparedStatement.setString(3,paymentType.name());
-					preparedStatement.setString(4,paymentStatus.name());
-					preparedStatement.setLong(5,plannedDate.toEpochDay());
-					preparedStatement.setDouble(6,net);
-					preparedStatement.setDouble(7,vat);
-					preparedStatement.setDouble(8,total);
-					preparedStatement.setString(9,nominalCode);
-					preparedStatement.setString(10,taxCode);
-					preparedStatement.setLong(11,id);
+					preparedStatement.setLong(3,driverId);
+					preparedStatement.setString(4,paymentType.name());
+					preparedStatement.setString(5,paymentStatus.name());
+					preparedStatement.setLong(6,plannedDate.toEpochDay());
+					preparedStatement.setDouble(7,net);
+					preparedStatement.setDouble(8,vat);
+					preparedStatement.setDouble(9,total);
+					preparedStatement.setString(10,nominalCode);
+					preparedStatement.setString(11,taxCode);
+					preparedStatement.setLong(12,id);
 				}
 		);
 	}

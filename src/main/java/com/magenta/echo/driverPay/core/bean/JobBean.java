@@ -274,6 +274,7 @@ public class JobBean extends AbstractBean{
 				"null id, " +
 				"j.job_date planned_date, " +
 				"j.driver_id," +
+				"'' driver_value," +
 				"sum(jr.net) net, " +
 				"sum(jr.vat) vat, " +
 				"sum(jr.total) total, " +

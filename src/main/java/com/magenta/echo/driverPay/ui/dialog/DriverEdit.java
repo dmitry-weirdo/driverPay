@@ -36,7 +36,7 @@ public class DriverEdit extends DialogExt<DriverDto> {
     private void initUI()   {
         getDialog().setTitle("Driver Edit");
         getDialog().setHeaderText(null);
-        getDialog().getDialogPane().getButtonTypes().addAll(ButtonType.APPLY, ButtonType.CANCEL);
+        getDialog().getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
     }
 
     private void loadData() {
@@ -62,7 +62,7 @@ public class DriverEdit extends DialogExt<DriverDto> {
 
     @Override
     protected DriverDto resultConverter(final ButtonType buttonType) {
-        if(ButtonType.APPLY.equals(buttonType)) {
+        if(ButtonType.OK.equals(buttonType)) {
             fillDto();
             driverBean.updateDriver(driverDto);
             return driverDto;

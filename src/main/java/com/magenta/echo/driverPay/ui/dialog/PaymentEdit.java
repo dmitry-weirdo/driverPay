@@ -42,7 +42,7 @@ public class PaymentEdit extends DialogExt<PaymentDto> {
 
 	private void initUI()	{
 		getDialog().setTitle("Edit Payment");
-		getDialog().getDialogPane().getButtonTypes().addAll(ButtonType.APPLY, ButtonType.CANCEL);
+		getDialog().getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 	}
 
 	private void loadData()	{
@@ -78,7 +78,7 @@ public class PaymentEdit extends DialogExt<PaymentDto> {
 
 	@Override
 	protected PaymentDto resultConverter(ButtonType buttonType) {
-		if(ButtonType.APPLY.equals(buttonType))	{
+		if(ButtonType.OK.equals(buttonType))	{
 			fillDto();
 			return paymentDto;
 		}

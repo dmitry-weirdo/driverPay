@@ -39,5 +39,4 @@ public class Main extends Screen {
 		Context.get().openScreen(new PaymentDocumentBrowser());
     }
 
-
 }

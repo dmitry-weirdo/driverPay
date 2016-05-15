@@ -5,6 +5,7 @@ import com.magenta.echo.driverpay.core.bean.JobBean;
 import com.magenta.echo.driverpay.core.entity.DriverDto;
 import com.magenta.echo.driverpay.core.entity.JobDto;
 import com.magenta.echo.driverpay.core.entity.JobRateDto;
+import com.magenta.echo.driverpay.ui.Utils;
 import com.magenta.echo.driverpay.ui.dialog.JobRateEdit;
 import com.magenta.echo.driverpay.ui.dialog.SelectDriver;
 import javafx.event.ActionEvent;
@@ -63,9 +64,10 @@ public class JobEdit extends Screen {
 		rateTaxCodeColumn.setCellValueFactory(new PropertyValueFactory<>("taxCode"));
 
 		rateTable.getSelectionModel().selectedItemProperty().addListener(param -> {
-			final boolean isEmpty = rateTable.getSelectionModel().isEmpty();
-			editRateButton.setDisable(isEmpty);
-			removeRateButton.setDisable(isEmpty);
+			final boolean isNotSelected = rateTable.getSelectionModel().isEmpty();
+			final boolean isNonSingleSelection = rateTable.getSelectionModel().getSelectedItems().size() != 1;
+			editRateButton.setDisable(isNonSingleSelection);
+			removeRateButton.setDisable(isNotSelected);
 		});
 	}
 
@@ -73,20 +75,21 @@ public class JobEdit extends Screen {
 		if(jobId == null)	{
 			jobDto = new JobDto();
 			jobRateDtoList = new ArrayList<>();
-			return;
+		}else {
+			jobDto = jobBean.loadJob(jobId);
+			jobRateDtoList = jobBean.loadJobRateList(jobId);
 		}
-
-		jobDto = jobBean.loadJob(jobId);
-		jobRateDtoList = jobBean.loadJobRateList(jobId);
 
 		fillUI();
 	}
 
 	private void fillUI()	{
-		idField.setText(String.valueOf(jobDto.getId()));
+		idField.setText(Utils.toString(jobDto.getId()));
 		jobDateField.setValue(jobDto.getJobDate());
-		driverField.setText(jobDto.getDriverValue());
-		selectedDriverId = jobDto.getDriverId();
+		if(jobDto.getDriverId() != null) {
+			driverField.setText(jobDto.getDriverValue());
+			selectedDriverId = jobDto.getDriverId();
+		}
 		rateTable.getItems().setAll(jobRateDtoList);
 	}
 
@@ -125,8 +128,8 @@ public class JobEdit extends Screen {
 		if(rateTable.getSelectionModel().isEmpty())	{
 			return;
 		}
-		final JobRateDto jobRateDto = rateTable.getSelectionModel().getSelectedItem();
-		rateTable.getItems().remove(jobRateDto);
+		final List<JobRateDto> jobRateList = rateTable.getSelectionModel().getSelectedItems();
+		jobRateList.forEach(jobRate -> rateTable.getItems().remove(jobRate));
 	}
 
 	@FXML

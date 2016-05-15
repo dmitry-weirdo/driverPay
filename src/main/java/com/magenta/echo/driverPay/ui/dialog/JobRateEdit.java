@@ -37,12 +37,12 @@ public class JobRateEdit extends DialogExt<JobRateDto>{
 	private void initUI()	{
 		getDialog().setTitle("Job Rate Edit");
 		getDialog().setHeaderText(null);
-		getDialog().getDialogPane().getButtonTypes().addAll(ButtonType.APPLY, ButtonType.CANCEL);
+		getDialog().getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 	}
 
 	@Override
 	protected JobRateDto resultConverter(final ButtonType buttonType)	{
-		if(ButtonType.APPLY.equals(buttonType))	{
+		if(ButtonType.OK.equals(buttonType))	{
 			fillDto();
 			return jobRateDto;
 		}else {

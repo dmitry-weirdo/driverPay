@@ -23,6 +23,7 @@ public class Context {
 	private final PaymentBean paymentBean = new PaymentBean();
 	private final SalaryCalculationBean salaryCalculationBean = new SalaryCalculationBean();
 	private final PaymentProcessBean paymentProcessBean = new PaymentProcessBean();
+	private final PaymentGenerationBean paymentGenerationBean = new PaymentGenerationBean();
 
     protected Context()    {}
 
@@ -77,5 +78,9 @@ public class Context {
 
 	public PaymentProcessBean getPaymentProcessBean() {
 		return paymentProcessBean;
+	}
+
+	public PaymentGenerationBean getPaymentGenerationBean() {
+		return paymentGenerationBean;
 	}
 }

@@ -93,4 +93,12 @@ public class JobBrowser extends Screen {
 		selectedDriverId = result.get().getId();
 		loadData();
 	}
+
+	@FXML
+	public void handleClear(ActionEvent event) {
+		dateFrom.setValue(null);
+		dateTo.setValue(null);
+		selectedDriverId = null;
+		selectDriver.setText("Select Driver");
+	}
 }

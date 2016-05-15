@@ -1,6 +1,7 @@
 package com.magenta.echo.driverpay.ui;
 
 import java.time.LocalDate;
+import java.time.Period;
 
 /**
  * Project: Driver Pay
@@ -21,5 +22,12 @@ public class Utils {
 
 	public static Long endDateToLong(final LocalDate date)	{
 		return date == null ? Long.MAX_VALUE : date.toEpochDay();
+	}
+
+	public static LocalDate plusPeriod(final LocalDate localDate, final Period period)	{
+		return localDate
+				.plusYears(period.getYears())
+				.plusMonths(period.getMonths())
+				.plusDays(period.getDays());
 	}
 }
