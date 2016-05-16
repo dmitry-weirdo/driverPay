@@ -17,3 +17,7 @@ hs_err_pid*
 
 # ignore target dir
 target/
+
+# ignore driver pay prototype working files
+application.log
+driver-pay.db
