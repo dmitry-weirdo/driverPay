@@ -369,9 +369,9 @@ public class PaymentBean extends AbstractBean {
 				"payment_reason_id = ?, " +
 				"job_id = ?, " +
 				"driver_id = ?, " +
-				"planned_date = ?, " +
 				"type = ?, " +
 				"status = ?, " +
+				"planned_date = ?, " +
 				"net = ?, " +
 				"vat = ?, " +
 				"total = ?, " +

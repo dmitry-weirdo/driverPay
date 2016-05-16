@@ -6,7 +6,7 @@
 	<groupId>com.magenta.echo</groupId>
 	<artifactId>driverPay-prototype</artifactId>
 	<name>Driver Pay redesign prototype</name>
-	<version>1.1</version>
+	<version>1.1.1</version>
 
 	<packaging>jar</packaging>
 
