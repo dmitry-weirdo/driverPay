@@ -129,26 +129,26 @@ public class PaymentProcessBean extends AbstractBean {
 	public List<TransactionDto> loadTransactionListByPayment(final Long paymentId)	{
 		return getDataManager().executeQuery(
 				"select\n" +
-				"\tt.id,\n" +
-				"\tt.payment_date,\n" +
-				"\tcase\n" +
-				"\t\twhen fb.type = 'DRIVER'  then fd.name+' (driver)'\n" +
-				"\t\twhen fb.type = 'DEPOSIT' then fd.name+' (deposit)'\n" +
-				"\t\twhen fb.type = 'COMPANY' then 'Company'\n" +
-				"\tend from_balance_value,\n" +
-				"\tcase\n" +
-				"\t\twhen tb.type = 'DRIVER'  then td.name+' (driver)'\n" +
-				"\t\twhen tb.type = 'DEPOSIT' then td.name+' (deposit)'\n" +
-				"\t\twhen fb.type = 'COMPANY' then 'Company'\n" +
-				"\tend to_balance_value,\n" +
-				"\tt.net,\n" +
-				"\tt.vat,\n" +
-				"\tt.total\n" +
+					"t.id,\n" +
+					"t.payment_date,\n" +
+					"case\n" +
+						"when fb.type = 'DRIVER'  then fd.name+' (driver)'\n" +
+						"when fb.type = 'DEPOSIT' then fd.name+' (deposit)'\n" +
+						"when fb.type = 'COMPANY' then 'Company'\n" +
+					"end from_balance_value,\n" +
+					"case\n" +
+						"when tb.type = 'DRIVER'  then td.name+' (driver)'\n" +
+						"when tb.type = 'DEPOSIT' then td.name+' (deposit)'\n" +
+						"when fb.type = 'COMPANY' then 'Company'\n" +
+					"end to_balance_value,\n" +
+					"t.net,\n" +
+					"t.vat,\n" +
+					"t.total\n" +
 				"from transactions t\n" +
 				"left join balances fb on t.from_id = fb.id\n" +
-				"left join drivers fd on (fb.type = 'DRIVER' and fd.salary_balance_id = fb.id) or (fb.type = 'DEPOSIT' and fd.deposit_balance_id = fb.id)\n" +
+				"left join drivers fd on fb.driver_id = fd.id\n" +
 				"left join balances tb on t.to_id = tb.id\n" +
-				"left join drivers td on (tb.type = 'DRIVER' and td.salary_balance_id = tb.id) or (tb.type = 'DEPOSIT' and td.deposit_balance_id = tb.id)\n" +
+				"left join drivers td on tb.driver_id = td.id\n" +
 				"where t.payment_id = ?",
 				preparedStatement -> preparedStatement.setLong(1,paymentId),
 				TRANSACTION_READER
@@ -158,27 +158,27 @@ public class PaymentProcessBean extends AbstractBean {
 	public List<TransactionDto> loadTransactionListByPaymentDocument(final Long paymentDocumentId)	{
 		return getDataManager().executeQuery(
 				"select\n" +
-				"t.id,\n" +
-				"t.payment_date,\n" +
-				"case\n" +
-				"when fb.type = 'DRIVER'  then fd.name || ' (Driver)'\n" +
-				"when fb.type = 'DEPOSIT' then fd.name || ' (Deposit)'\n" +
-				"when fb.type = 'COMPANY' then 'Company'\n" +
-				"end balance_from_value,\n" +
-				"case\n" +
-				"when tb.type = 'DRIVER'  then td.name || ' (Driver)'\n" +
-				"when tb.type = 'DEPOSIT' then td.name || ' (Deposit)'\n" +
-				"when tb.type = 'COMPANY' then 'Company'\n" +
-				"end balance_to_value,\n" +
-				"t.net,\n" +
-				"t.vat,\n" +
-				"t.total\n" +
+					"t.id,\n" +
+					"t.payment_date,\n" +
+					"case\n" +
+						"when fb.type = 'DRIVER'  then fd.name || ' (Driver)'\n" +
+						"when fb.type = 'DEPOSIT' then fd.name || ' (Deposit)'\n" +
+						"when fb.type = 'COMPANY' then 'Company'\n" +
+					"end balance_from_value,\n" +
+					"case\n" +
+						"when tb.type = 'DRIVER'  then td.name || ' (Driver)'\n" +
+						"when tb.type = 'DEPOSIT' then td.name || ' (Deposit)'\n" +
+						"when tb.type = 'COMPANY' then 'Company'\n" +
+					"end balance_to_value,\n" +
+					"t.net,\n" +
+					"t.vat,\n" +
+					"t.total\n" +
 				"from transactions t\n" +
 				"join payments p on t.payment_id = p.id\n" +
 				"left join balances fb on t.from_id = fb.id\n" +
-				"left join drivers fd on (fb.type = 'DRIVER' and fd.salary_balance_id = fb.id) or (fb.type = 'DEPOSIT' and fd.deposit_balance_id = fb.id)\n" +
+				"left join drivers fd on fb.driver_id = fd.id\n" +
 				"left join balances tb on t.to_id = tb.id\n" +
-				"left join drivers td on (tb.type = 'DRIVER' and td.salary_balance_id = tb.id) or (tb.type = 'DEPOSIT' and td.deposit_balance_id = tb.id)\n" +
+				"left join drivers td on tb.driver_id = td.id\n" +
 				"where p.payment_document_id = ?",
 		preparedStatement -> preparedStatement.setLong(1,paymentDocumentId),
 		TRANSACTION_READER
@@ -250,19 +250,14 @@ public class PaymentProcessBean extends AbstractBean {
 					resultSet -> resultSet.getLong("id")
 			);
 
-		}else if(BalanceType.DRIVER.equals(balanceType))	{
+		}else if(BalanceType.DRIVER.equals(balanceType) || BalanceType.DEPOSIT.equals(balanceType))	{
 
 			return getDataManager().executeSingleQuery(
-					"select salary_balance_id id from drivers where id = ?",
-					preparedStatement -> preparedStatement.setLong(1,driverId),
-					resultSet -> resultSet.getLong("id")
-			);
-
-		}else if(BalanceType.DEPOSIT.equals(balanceType)) {
-
-			return getDataManager().executeSingleQuery(
-					"select deposit_balance_id id from drivers where id = ?",
-					preparedStatement -> preparedStatement.setLong(1,driverId),
+					"select id from balances where driver_id = ? and type = ?",
+					preparedStatement -> {
+						preparedStatement.setLong(1,driverId);
+						preparedStatement.setString(2,balanceType.name());
+					},
 					resultSet -> resultSet.getLong("id")
 			);
 

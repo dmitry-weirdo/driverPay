@@ -1,21 +1,26 @@
 package com.magenta.echo.driverpay.ui.screen;
 
+import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker;
+import com.evgenltd.kwickui.controls.objectpicker.SimpleObject;
+import com.evgenltd.kwickui.core.Screen;
+import com.evgenltd.kwickui.core.UIContext;
+import com.evgenltd.kwickui.extensions.tableview.TableViewExtension;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.PaymentBean;
-import com.magenta.echo.driverpay.core.entity.DriverDto;
 import com.magenta.echo.driverpay.core.entity.PaymentDto;
 import com.magenta.echo.driverpay.core.entity.PaymentReasonDto;
 import com.magenta.echo.driverpay.core.enums.PaymentType;
+import com.magenta.echo.driverpay.ui.PickerHelper;
 import com.magenta.echo.driverpay.ui.Utils;
 import com.magenta.echo.driverpay.ui.cellfactory.TransactionTypeListCell;
 import com.magenta.echo.driverpay.ui.dialog.PaymentEdit;
 import com.magenta.echo.driverpay.ui.dialog.PaymentGenerationWizard;
-import com.magenta.echo.driverpay.ui.dialog.SelectDriver;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +37,7 @@ public class PaymentReasonEdit extends Screen {
 	private PaymentBean paymentBean = Context.get().getPaymentBean();
 
 	@FXML private Label idField;
-	@FXML private Button driverField;
+	@FXML private ObjectPicker<SimpleObject> driverField;
 	@FXML private TextField nameField;
 	@FXML private ComboBox<PaymentType> typeField;
 
@@ -48,6 +53,7 @@ public class PaymentReasonEdit extends Screen {
 	@FXML private TableColumn<PaymentDto,String> paymentNominalCodeColumn;
 	@FXML private TableColumn<PaymentDto,String> paymentTaxCodeColumn;
 	@FXML private TableColumn<PaymentDto,String> statusColumn;
+	@FXML private HBox totalsPane;
 
 	private Long paymentReasonId;
 	private PaymentReasonDto paymentReasonDto;
@@ -58,6 +64,11 @@ public class PaymentReasonEdit extends Screen {
 		this.paymentReasonId = paymentReasonId;
 		initUI();
 		loadData();
+	}
+
+	@Override
+	public String getTitle() {
+		return "Payment Reason Edit";
 	}
 
 	// other
@@ -91,9 +102,14 @@ public class PaymentReasonEdit extends Screen {
 			editPaymentButton.setDisable(isNonSingleSelection);
 			removePaymentButton.setDisable(isNotSelected);
 		});
+
+		TableViewExtension.setupDoubleClickEvent(paymentTable, this::handleEditPayment);
+		TableViewExtension.setupTotalSupport(paymentTable,totalsPane,Arrays.asList(paymentNetColumn,paymentVatColumn,paymentTotalColumn));
 	}
 
 	private void loadData()	{
+		PickerHelper.setupDriverPicker(driverField);
+
 		if(paymentReasonId == null)	{
 			paymentReasonDto = new PaymentReasonDto();
 			paymentDtoList = new ArrayList<>();
@@ -109,7 +125,10 @@ public class PaymentReasonEdit extends Screen {
 		idField.setText(Utils.toString(paymentReasonDto.getId()));
 		nameField.setText(paymentReasonDto.getName());
 		if(paymentReasonDto.getDriverId() != null) {
-			driverField.setText(Utils.toString(paymentReasonDto.getDriverValue()));
+			driverField.setSelectedObject(new SimpleObject(
+					paymentReasonDto.getDriverId(),
+					paymentReasonDto.getDriverValue()
+			));
 		}
 		typeField.getSelectionModel().select(paymentReasonDto.getType());
 
@@ -119,27 +138,39 @@ public class PaymentReasonEdit extends Screen {
 	private void fillDto()	{
 		paymentReasonDto.setName(nameField.getText());
 		paymentReasonDto.setType(typeField.getValue());
+		paymentReasonDto.setDriverId(
+				driverField
+						.getSelectedObject()
+						.map(SimpleObject::getId)
+						.orElse(null)
+		);
 		paymentDtoList = paymentTable.getItems();
 	}
 
 	// handlers
 
-	@FXML
-	private void handleSelectDriver(ActionEvent event) {
-		final Optional<DriverDto> driverHolder = Context.get().openDialogAndWait(new SelectDriver());
-		if(driverHolder.isPresent())	{
-			driverField.setText(driverHolder.get().getName());
-			paymentReasonDto.setDriverId(driverHolder.get().getId());
-			paymentReasonDto.setDriverValue(driverHolder.get().getName());
+	private void handleEditPayment(final PaymentDto payment)	{
+		if(payment == null)	{
+			return;
 		}
+
+		new PaymentEdit(payment)
+				.showAndWait()
+				.map(newPayment -> {
+					paymentTable.getItems().remove(payment);
+					paymentTable.getItems().add(newPayment);
+					return null;
+				});
 	}
 
 	@FXML
 	private void handleAddPayment(ActionEvent event) {
-		final Optional<PaymentDto> paymentHolder = Context.get().openDialogAndWait(new PaymentEdit(null));
-		if(paymentHolder.isPresent())	{
-			paymentTable.getItems().add(paymentHolder.get());
-		}
+		new PaymentEdit(null)
+				.showAndWait()
+				.map(payment -> {
+					paymentTable.getItems().add(payment);
+					return null;
+				});
 	}
 
 	@FXML
@@ -149,11 +180,13 @@ public class PaymentReasonEdit extends Screen {
 		}
 		final PaymentDto selectedPaymentDto = paymentTable.getSelectionModel().getSelectedItem();
 
-		final Optional<PaymentDto> paymentHolder = Context.get().openDialogAndWait(new PaymentEdit(selectedPaymentDto));
-		if(paymentHolder.isPresent())	{
-			paymentTable.getItems().remove(selectedPaymentDto);
-			paymentTable.getItems().add(paymentHolder.get());
-		}
+		new PaymentEdit(selectedPaymentDto)
+				.showAndWait()
+				.map(payment -> {
+					paymentTable.getItems().remove(selectedPaymentDto);
+					paymentTable.getItems().add(payment);
+					return null;
+				});
 	}
 
 	@FXML
@@ -170,17 +203,17 @@ public class PaymentReasonEdit extends Screen {
 	private void handleApply(ActionEvent event) {
 		fillDto();
 		paymentBean.updatePaymentReason(paymentReasonDto, paymentDtoList);
-		Context.get().openScreen(new PaymentReasonBrowser());
+		handleClose(event);
 	}
 
 	@FXML
 	private void handleClose(ActionEvent event) {
-		Context.get().openScreen(new PaymentReasonBrowser());
+		UIContext.get().closeScreen();
 	}
 
 	@FXML
 	private void handleGeneratePaymentsByTemplate(ActionEvent event) {
-		final Optional<List<PaymentDto>> result = Context.get().openDialogAndWait(new PaymentGenerationWizard(paymentTable.getItems()));
+		final Optional<List<PaymentDto>> result = new PaymentGenerationWizard(paymentTable.getItems()).showAndWait();
 		if(!result.isPresent())	{
 			return;
 		}

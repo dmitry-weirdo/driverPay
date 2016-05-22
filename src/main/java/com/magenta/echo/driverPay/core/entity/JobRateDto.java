@@ -8,19 +8,15 @@ package com.magenta.echo.driverpay.core.entity;
 public class JobRateDto {
 	private Long id;
 	private Double net;
-	private Double vat;
-	private Double total;
 	private String nominalCode;
 	private String taxCode;
 
 	public JobRateDto() {
 	}
 
-	public JobRateDto(Long id, Double net, Double vat, Double total, String nominalCode, String taxCode) {
+	public JobRateDto(Long id, Double net, String nominalCode, String taxCode) {
 		this.id = id;
 		this.net = net;
-		this.vat = vat;
-		this.total = total;
 		this.nominalCode = nominalCode;
 		this.taxCode = taxCode;
 	}
@@ -39,22 +35,6 @@ public class JobRateDto {
 
 	public void setNet(Double net) {
 		this.net = net;
-	}
-
-	public Double getVat() {
-		return vat;
-	}
-
-	public void setVat(Double vat) {
-		this.vat = vat;
-	}
-
-	public Double getTotal() {
-		return total;
-	}
-
-	public void setTotal(Double total) {
-		this.total = total;
 	}
 
 	public String getNominalCode() {

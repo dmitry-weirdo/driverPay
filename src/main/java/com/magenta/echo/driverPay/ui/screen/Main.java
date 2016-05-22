@@ -1,6 +1,7 @@
 package com.magenta.echo.driverpay.ui.screen;
 
-import com.magenta.echo.driverpay.core.Context;
+import com.evgenltd.kwickui.core.Screen;
+import com.evgenltd.kwickui.core.UIContext;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 
@@ -14,29 +15,34 @@ public class Main extends Screen {
         super("/fxml/Main.fxml");
     }
 
+    @Override
+    public String getTitle() {
+        return null;
+    }
+
     @FXML
     private void handleDriversOpen(ActionEvent actionEvent) {
-        Context.get().openScreen(new DriverBrowser());
+        UIContext.get().openScreenInNewTab(new DriverBrowser());
     }
 
     @FXML
     private void handleJobsOpen(ActionEvent actionEvent) {
-        Context.get().openScreen(new JobBrowser());
+        UIContext.get().openScreenInNewTab(new JobBrowser());
     }
 
     @FXML
     private void handleChargeBasesOpen(ActionEvent actionEvent) {
-        Context.get().openScreen(new PaymentReasonBrowser());
+        UIContext.get().openScreenInNewTab(new PaymentReasonBrowser());
     }
 
     @FXML
     private void handleSalaryCalculationOpen(ActionEvent actionEvent) {
-		Context.get().openScreen(new SalaryCalculation());
+		UIContext.get().openScreenInNewTab(new SalaryCalculation());
     }
 
     @FXML
     private void handlePaymentsOpen(ActionEvent actionEvent) {
-		Context.get().openScreen(new PaymentDocumentBrowser());
+		UIContext.get().openScreenInNewTab(new PaymentDocumentBrowser());
     }
 
 }

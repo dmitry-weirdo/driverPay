@@ -1,5 +1,6 @@
 package com.magenta.echo.driverpay.ui.screen;
 
+import com.evgenltd.kwickui.core.Screen;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.DriverBean;
 import com.magenta.echo.driverpay.core.entity.DriverDto;
@@ -31,6 +32,11 @@ public class DriverBrowser extends Screen {
         loadData();
     }
 
+    @Override
+    public String getTitle() {
+        return "Driver browser";
+    }
+
     // other
 
     private void initUI()   {
@@ -49,7 +55,7 @@ public class DriverBrowser extends Screen {
 
     @FXML
     private void handleAddDriver(ActionEvent actionEvent) {
-        Context.get().openDialogAndWait(new DriverEdit(null));
+        new DriverEdit(null).showAndWait();
 		loadData();
     }
 
@@ -59,7 +65,7 @@ public class DriverBrowser extends Screen {
             return;
         }
         final Long selectedDriverId = table.getSelectionModel().getSelectedItem().getId();
-        Context.get().openDialogAndWait(new DriverEdit(selectedDriverId));
+        new DriverEdit(selectedDriverId).showAndWait();
 		loadData();
     }
 }

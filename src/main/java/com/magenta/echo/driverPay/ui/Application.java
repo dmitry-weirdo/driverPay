@@ -1,9 +1,10 @@
 package com.magenta.echo.driverpay.ui;
 
+import com.evgenltd.kwickui.core.UIContext;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.Scheme;
 import com.magenta.echo.driverpay.ui.screen.Main;
-import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 /**
@@ -14,12 +15,22 @@ import javafx.stage.Stage;
 public class Application extends javafx.application.Application {
     public void start(final Stage primaryStage) throws Exception {
 
-        Context.get().setStage(primaryStage);
-		Scheme.initDatabase();
+        Context.get();
+        Scheme.initDatabase();
 
-        final Main main = new Main();
-        final Scene scene = new Scene(main.getRoot(), 800, 600);
-        primaryStage.setScene(scene);
+		UIContext.get().initialization(primaryStage);
+        UIContext.get().setHome(new Main().getRoot());
+
+		primaryStage.setTitle(String.format(
+				"%s %s",
+				getClass().getPackage().getImplementationTitle(),
+				getClass().getPackage().getImplementationVersion()
+		));
+		primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/image/app-icon-16.png")));
+		primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/image/app-icon-32.png")));
+		primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/image/app-icon-64.png")));
+		primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/image/app-icon-128.png")));
+
         primaryStage.show();
 
 		Thread.currentThread().setUncaughtExceptionHandler(new UIExceptionHandler());

@@ -1,15 +1,18 @@
 package com.magenta.echo.driverpay.ui.screen;
 
+import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker;
+import com.evgenltd.kwickui.controls.objectpicker.SimpleObject;
+import com.evgenltd.kwickui.core.Screen;
+import com.evgenltd.kwickui.core.UIContext;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.PaymentBean;
 import com.magenta.echo.driverpay.core.bean.SalaryCalculationBean;
-import com.magenta.echo.driverpay.core.entity.DriverDto;
 import com.magenta.echo.driverpay.core.entity.PaymentDto;
 import com.magenta.echo.driverpay.core.enums.PaymentStatus;
 import com.magenta.echo.driverpay.core.enums.PaymentType;
+import com.magenta.echo.driverpay.ui.PickerHelper;
 import com.magenta.echo.driverpay.ui.cellfactory.OptionalPaymentStatusListCell;
 import com.magenta.echo.driverpay.ui.cellfactory.OptionalPaymentTypeListCell;
-import com.magenta.echo.driverpay.ui.dialog.SelectDriver;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -32,7 +35,7 @@ public class SalaryCalculation extends Screen {
 
 	@FXML private DatePicker dateTo;
 	@FXML private DatePicker dateFrom;
-	@FXML private Button driver;
+	@FXML private ObjectPicker<SimpleObject> driver;
 	@FXML private ComboBox<Optional<PaymentType>> type;
 	@FXML private ComboBox<Optional<PaymentStatus>> status;
 
@@ -48,12 +51,15 @@ public class SalaryCalculation extends Screen {
 	@FXML private TableColumn<PaymentDto,Double> vatColumn;
 	@FXML private TableColumn<PaymentDto,Double> totalColumn;
 
-	private Long selectedDriverId;
-
 	public SalaryCalculation() {
 		super("/fxml/SalaryCalculation.fxml");
 		initUI();
 		loadData();
+	}
+
+	@Override
+	public String getTitle() {
+		return "Salary Calculation";
 	}
 
 	// other
@@ -99,10 +105,12 @@ public class SalaryCalculation extends Screen {
 	}
 
 	private void loadData()	{
+		PickerHelper.setupDriverPicker(driver);
+
 		final List<PaymentDto> PaymentDtoList = paymentBean.loadPaymentList(
 				dateFrom.getValue(),
 				dateTo.getValue(),
-				selectedDriverId,
+				driver.getSelectedObject().map(SimpleObject::getId).orElse(null),
 				type.getSelectionModel().getSelectedItem().orElse(null),
 				status.getSelectionModel().getSelectedItem().orElse(null)
 		);
@@ -120,15 +128,14 @@ public class SalaryCalculation extends Screen {
 	private void handleClear(ActionEvent event) {
 		dateFrom.setValue(null);
 		dateTo.setValue(null);
-		selectedDriverId = null;
-		driver.setText("Select Driver...");
+		driver.clear();
 		type.getSelectionModel().select(Optional.empty());
 		status.getSelectionModel().select(Optional.empty());
 	}
 
 	@FXML
 	private void handleOpenPayments(ActionEvent event) {
-		Context.get().openScreen(new PaymentDocumentBrowser());
+		UIContext.get().openScreen(new PaymentDocumentBrowser());
 	}
 
 	@FXML
@@ -140,13 +147,4 @@ public class SalaryCalculation extends Screen {
 		loadData();
 	}
 
-	@FXML
-	private void handleSelectDriver(ActionEvent event) {
-		final Optional<DriverDto> result = Context.get().openDialogAndWait(new SelectDriver());
-		if(!result.isPresent())	{
-			return;
-		}
-		driver.setText(result.get().getName());
-		selectedDriverId = result.get().getId();
-	}
 }

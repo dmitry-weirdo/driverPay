@@ -2,11 +2,6 @@ package com.magenta.echo.driverpay.core;
 
 import com.magenta.echo.driverpay.core.bean.*;
 import com.magenta.echo.driverpay.core.db.DataManager;
-import com.magenta.echo.driverpay.ui.dialog.DialogExt;
-import com.magenta.echo.driverpay.ui.screen.Screen;
-import javafx.stage.Stage;
-
-import java.util.Optional;
 
 /**
  * Project: Driver Pay
@@ -16,7 +11,6 @@ import java.util.Optional;
 public class Context {
     private static final Context context = new Context();
 
-    private Stage stage;
     private final DataManager dataManager = new DataManager();
 	private final DriverBean driverBean = new DriverBean();
 	private final JobBean jobBean = new JobBean();
@@ -35,26 +29,7 @@ public class Context {
 		return "driver-pay.db";
 	}
 
-    public Stage getStage() {
-        return stage;
-    }
-
-    public void setStage(final Stage stage) {
-        this.stage = stage;
-    }
-
     //
-
-    public void openScreen(final Screen screen)    {
-        stage.getScene().setRoot(screen.getRoot());
-    }
-
-	public <T> Optional<T> openDialogAndWait(final DialogExt<T> dialogExt)	{
-		return dialogExt.showAndWait();
-	}
-
-    //
-
 
 	public DataManager getDataManager() {
 		return dataManager;

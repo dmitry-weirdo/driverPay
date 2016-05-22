@@ -1,10 +1,10 @@
 package com.magenta.echo.driverpay.core.bean;
 
+import com.evgenltd.kwickui.controls.objectpicker.SimpleObject;
 import com.magenta.echo.driverpay.core.db.ConnectionExt;
 import com.magenta.echo.driverpay.core.entity.DriverDto;
 import com.magenta.echo.driverpay.core.enums.BalanceType;
-import com.magenta.echo.driverpay.core.exception.EntryNotExist;
-import com.magenta.echo.driverpay.ui.Utils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -15,80 +15,68 @@ import java.util.List;
  */
 public class DriverBean extends AbstractBean {
 
+	public List<SimpleObject> loadDriverList(final String pattern)	{
+
+		return getDataManager().executeQuery(
+				"select\n" +
+					"d.id,\n" +
+					"d.name\n" +
+				"from drivers d\n" +
+				"where d.name like ?",
+				preparedStatement -> preparedStatement.setString(1,"%"+pattern+"%"),
+				resultSet -> new SimpleObject(
+						resultSet.getLong("id"),
+						resultSet.getString("name")
+				)
+		);
+
+	}
+
     public List<DriverDto> loadDriverList() {
 
         return getDataManager().executeQuery(
 				"select\n" +
 					"d.id,\n" +
-					"d.name,\n" +
-					"d.salary_balance_id,\n" +
-					"s.type salary_type,\n" +
-					"d.deposit_balance_id,\n" +
-					"dep.type deposit_type\n" +
-				"from drivers d\n" +
-				"join balances s on d.salary_balance_id = s.id\n" +
-				"join balances dep on d.deposit_balance_id = dep.id",
+					"d.name\n" +
+				"from drivers d",
 				preparedStatement -> {},
 				resultSet -> new DriverDto(
 						resultSet.getLong("id"),
-						resultSet.getString("name"),
-						resultSet.getLong("salary_balance_id"),
-						BalanceType.valueOf(resultSet.getString("salary_type")),
-						resultSet.getLong("deposit_balance_id"),
-						BalanceType.valueOf(resultSet.getString("deposit_type"))
+						resultSet.getString("name")
 				)
 		);
 
     }
 
-    public DriverDto loadDriver(final Long driverId)    {
+    public DriverDto loadDriver(@NotNull final Long driverId)    {
 
-		final List<DriverDto> result = getDataManager().executeQuery(
+		return getDataManager().executeSingleQuery(
 				"select\n" +
 					"d.id,\n" +
-					"d.name,\n" +
-					"d.salary_balance_id,\n" +
-					"s.type salary_type,\n" +
-					"d.deposit_balance_id,\n" +
-					"dep.type deposit_type\n" +
+					"d.name\n" +
 				"from drivers d\n" +
-				"join balances s on d.salary_balance_id = s.id\n" +
-				"join balances dep on d.deposit_balance_id = dep.id\n" +
 				"where\n" +
 					"d.id = ?",
 				preparedStatement -> preparedStatement.setLong(1, driverId),
 				resultSet -> new DriverDto(
 						resultSet.getLong("id"),
-						resultSet.getString("name"),
-						resultSet.getLong("salary_balance_id"),
-						BalanceType.valueOf(resultSet.getString("salary_type")),
-						resultSet.getLong("deposit_balance_id"),
-						BalanceType.valueOf(resultSet.getString("deposit_type"))
+						resultSet.getString("name")
 				)
 		);
 
-		if(result.size() != 1)	{
-			throw new EntryNotExist(Utils.toString(driverId));
-		}
-
-		return result.get(0);
-
     }
 
-    public void updateDriver(final DriverDto driverDto) {
+    public void updateDriver(@NotNull final DriverDto driverDto) {
 
 		try(final ConnectionExt connection = getDataManager().getConnection()) {
 
 			if(driverDto.getId() == null)	{
 
-				buildNewDriver(driverDto.getName());
+				addDriver(driverDto.getName());
 
 			}else {
 
-				updateDriver(
-						driverDto.getId(),
-						driverDto.getName()
-				);
+				updateDriver(driverDto.getId(), driverDto.getName());
 
 			}
 
@@ -100,37 +88,29 @@ public class DriverBean extends AbstractBean {
 
 	}
 
-	private Long buildSalaryBalance()	{
+	private Long addBalance(@NotNull final BalanceType type, @NotNull final Long driverId)	{
 		return getDataManager().executeInsert(
-				"insert into balances (id,type) values (null,?)",
-				preparedStatement -> preparedStatement.setString(1, BalanceType.DRIVER.name())
-		);
-	}
-
-	private Long buildDepositBalance()	{
-		return getDataManager().executeInsert(
-				"insert into balances (id,type) values (null,?)",
-				preparedStatement -> preparedStatement.setString(1, BalanceType.DEPOSIT.name())
-		);
-	}
-
-	private void buildNewDriver(final String name)	{
-
-		final Long salaryBalanceId = buildSalaryBalance();
-		final Long depositBalanceId = buildDepositBalance();
-
-		getDataManager().executeInsert(
-				"insert into drivers (id,name,salary_balance_id,deposit_balance_id) values (null,?,?,?)",
+				"insert into balances (id,type,driver_id) values (null,?,?)",
 				preparedStatement -> {
-					preparedStatement.setString(1,name);
-					preparedStatement.setLong(2,salaryBalanceId);
-					preparedStatement.setLong(3,depositBalanceId);
+					preparedStatement.setString(1, type.name());
+					preparedStatement.setLong(2, driverId);
 				}
 		);
+	}
+
+	private void addDriver(@NotNull final String name)	{
+
+		final Long driverId = getDataManager().executeInsert(
+				"insert into drivers (id,name) values (null,?)",
+				preparedStatement -> preparedStatement.setString(1,name)
+		);
+
+		addBalance(BalanceType.DRIVER, driverId);
+		addBalance(BalanceType.DEPOSIT, driverId);
 
 	}
 
-	private void updateDriver(final Long id, final String name)	{
+	private void updateDriver(@NotNull final Long id, @NotNull final String name)	{
 		getDataManager().executeUpdate(
 				"update drivers set name = ? where id = ?",
 				preparedStatement -> {

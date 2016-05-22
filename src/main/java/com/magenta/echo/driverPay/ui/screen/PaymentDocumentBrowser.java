@@ -1,16 +1,17 @@
 package com.magenta.echo.driverpay.ui.screen;
 
+import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker;
+import com.evgenltd.kwickui.controls.objectpicker.SimpleObject;
+import com.evgenltd.kwickui.core.Screen;
+import com.evgenltd.kwickui.core.UIContext;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.PaymentProcessBean;
-import com.magenta.echo.driverpay.core.entity.DriverDto;
 import com.magenta.echo.driverpay.core.entity.PaymentDocumentDto;
-import com.magenta.echo.driverpay.ui.dialog.SelectDriver;
+import com.magenta.echo.driverpay.ui.PickerHelper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-
-import java.util.Optional;
 
 /**
  * Project: Driver Pay
@@ -23,7 +24,7 @@ public class PaymentDocumentBrowser extends Screen {
 
 	@FXML private DatePicker dateFrom;
 	@FXML private DatePicker dateTo;
-	@FXML private Button driver;
+	@FXML private ObjectPicker<SimpleObject> driver;
 	@FXML private CheckBox processed;
 
 	@FXML private TableView<PaymentDocumentDto> table;
@@ -35,19 +36,20 @@ public class PaymentDocumentBrowser extends Screen {
 	@FXML private Button viewButton;
 	@FXML private Button processButton;
 
-	private Long selectedDriverId;
-
 	public PaymentDocumentBrowser() {
 		super("/fxml/PaymentDocumentBrowser.fxml");
 		initUI();
 		loadData();
 	}
 
+	@Override
+	public String getTitle() {
+		return "Payment Document Browser";
+	}
+
 	// other
 
 	private void initUI()	{
-
-//		processed.selectedProperty().addListener(param -> loadData());
 
 		idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
 		driverColumn.setCellValueFactory(new PropertyValueFactory<>("driverValue"));
@@ -63,10 +65,15 @@ public class PaymentDocumentBrowser extends Screen {
 	}
 
 	private void loadData()	{
+		PickerHelper.setupDriverPicker(driver);
+
 		table.getItems().setAll(paymentProcessBean.loadPaymentDocumentList(
 				dateFrom.getValue(),
 				dateTo.getValue(),
-				selectedDriverId,
+				driver
+						.getSelectedObject()
+						.map(SimpleObject::getId)
+						.orElse(null),
 				processed.isSelected()
 		));
 	}
@@ -82,8 +89,7 @@ public class PaymentDocumentBrowser extends Screen {
 	private void handleClear(ActionEvent event) {
 		dateFrom.setValue(null);
 		dateTo.setValue(null);
-		selectedDriverId = null;
-		driver.setText("Select Driver...");
+		driver.clear();
 		processed.setSelected(false);
 	}
 
@@ -93,7 +99,7 @@ public class PaymentDocumentBrowser extends Screen {
 			return;
 		}
 		final PaymentDocumentDto paymentDocumentDto = table.getSelectionModel().getSelectedItem();
-		Context.get().openScreen(new PaymentDocumentView(paymentDocumentDto.getId()));
+		UIContext.get().openScreen(new PaymentDocumentView(paymentDocumentDto.getId()));
 	}
 
 	@FXML
@@ -103,16 +109,6 @@ public class PaymentDocumentBrowser extends Screen {
 		}
 		paymentProcessBean.processPaymentDocuments(table.getSelectionModel().getSelectedItems());
 		loadData();
-	}
-
-	@FXML
-	private void handleSelectDriver(ActionEvent event) {
-		final Optional<DriverDto> result = Context.get().openDialogAndWait(new SelectDriver());
-		if(!result.isPresent())	{
-			return;
-		}
-		driver.setText(result.get().getName());
-		selectedDriverId = result.get().getId();
 	}
 
 }

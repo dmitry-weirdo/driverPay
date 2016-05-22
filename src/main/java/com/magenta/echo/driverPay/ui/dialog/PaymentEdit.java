@@ -1,5 +1,6 @@
 package com.magenta.echo.driverpay.ui.dialog;
 
+import com.evgenltd.kwickui.core.DialogScreen;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.PaymentBean;
 import com.magenta.echo.driverpay.core.entity.PaymentDto;
@@ -15,7 +16,7 @@ import javafx.scene.control.TextField;
  * Author:  Evgeniy
  * Created: 14-05-2016 02:37
  */
-public class PaymentEdit extends DialogExt<PaymentDto> {
+public class PaymentEdit extends DialogScreen<PaymentDto> {
 
 	private PaymentBean paymentBean = Context.get().getPaymentBean();
 
@@ -36,6 +37,11 @@ public class PaymentEdit extends DialogExt<PaymentDto> {
 		this.paymentDto = paymentDto;
 		initUI();
 		loadData();
+	}
+
+	@Override
+	protected String getTitle() {
+		return "Payment Edit";
 	}
 
 	// other

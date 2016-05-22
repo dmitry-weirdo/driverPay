@@ -1,5 +1,6 @@
 package com.magenta.echo.driverpay.ui.dialog;
 
+import com.evgenltd.kwickui.core.DialogScreen;
 import com.magenta.echo.driverpay.core.entity.JobRateDto;
 import com.magenta.echo.driverpay.ui.Utils;
 import javafx.fxml.FXML;
@@ -12,12 +13,10 @@ import javafx.scene.control.TextField;
  * Author:  Evgeniy
  * Created: 13-05-2016 01:56
  */
-public class JobRateEdit extends DialogExt<JobRateDto>{
+public class JobRateEdit extends DialogScreen<JobRateDto> {
 
 	@FXML private Label id;
 	@FXML private TextField net;
-	@FXML private TextField vat;
-	@FXML private TextField total;
 	@FXML private TextField nominalCode;
 	@FXML private TextField taxCode;
 
@@ -30,6 +29,11 @@ public class JobRateEdit extends DialogExt<JobRateDto>{
 
 		initUI();
 		fillUI();
+	}
+
+	@Override
+	protected String getTitle() {
+		return "Job Rate Edit";
 	}
 
 	// other
@@ -53,16 +57,12 @@ public class JobRateEdit extends DialogExt<JobRateDto>{
 	private void fillUI()	{
 		id.setText(Utils.toString(jobRateDto.getId()));
 		net.setText(Utils.toString(jobRateDto.getNet()));
-		vat.setText(Utils.toString(jobRateDto.getVat()));
-		total.setText(Utils.toString(jobRateDto.getTotal()));
 		nominalCode.setText(jobRateDto.getNominalCode());
 		taxCode.setText(jobRateDto.getTaxCode());
 	}
 
 	private void fillDto()	{
 		jobRateDto.setNet(Double.parseDouble(net.getText()));
-		jobRateDto.setVat(Double.parseDouble(vat.getText()));
-		jobRateDto.setTotal(Double.parseDouble(total.getText()));
 		jobRateDto.setNominalCode(nominalCode.getText());
 		jobRateDto.setTaxCode(taxCode.getText());
 	}

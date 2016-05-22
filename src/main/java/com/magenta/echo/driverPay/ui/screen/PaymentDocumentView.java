@@ -1,5 +1,7 @@
 package com.magenta.echo.driverpay.ui.screen;
 
+import com.evgenltd.kwickui.core.Screen;
+import com.evgenltd.kwickui.core.UIContext;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.PaymentBean;
 import com.magenta.echo.driverpay.core.bean.PaymentProcessBean;
@@ -65,6 +67,11 @@ public class PaymentDocumentView extends Screen {
 		loadData();
 	}
 
+	@Override
+	public String getTitle() {
+		return "Payment Document View";
+	}
+
 	// other
 
 	private void initUI()	{
@@ -108,6 +115,6 @@ public class PaymentDocumentView extends Screen {
 
 	@FXML
 	private void handleClose(ActionEvent event) {
-		Context.get().openScreen(new PaymentDocumentBrowser());
+		UIContext.get().closeScreen();
 	}
 }

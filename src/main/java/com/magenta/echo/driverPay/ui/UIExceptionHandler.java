@@ -1,7 +1,6 @@
 package com.magenta.echo.driverpay.ui;
 
-import com.magenta.echo.driverpay.core.Context;
-import com.magenta.echo.driverpay.ui.dialog.ExceptionView;
+import org.controlsfx.dialog.ExceptionDialog;
 
 /**
  * Project: Driver Pay
@@ -11,6 +10,7 @@ import com.magenta.echo.driverpay.ui.dialog.ExceptionView;
 public class UIExceptionHandler implements Thread.UncaughtExceptionHandler {
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
-		Context.get().openDialogAndWait(new ExceptionView(e));
+		ExceptionDialog exceptionDialog = new ExceptionDialog(e);
+		exceptionDialog.showAndWait();
 	}
 }

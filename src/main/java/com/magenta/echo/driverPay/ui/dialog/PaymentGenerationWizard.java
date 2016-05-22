@@ -1,5 +1,6 @@
 package com.magenta.echo.driverpay.ui.dialog;
 
+import com.evgenltd.kwickui.core.DialogScreen;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.PaymentGenerationBean;
 import com.magenta.echo.driverpay.core.entity.PaymentDto;
@@ -20,7 +21,7 @@ import java.util.List;
  * Author:  Evgeniy
  * Created: 15-05-2016 20:18
  */
-public class PaymentGenerationWizard extends DialogExt<List<PaymentDto>> {
+public class PaymentGenerationWizard extends DialogScreen<List<PaymentDto>> {
 
 	private static final String INCREMENTAL = "Incremental";
 	private static final String REPEAT = "Repeat";
@@ -47,6 +48,11 @@ public class PaymentGenerationWizard extends DialogExt<List<PaymentDto>> {
 		super("/fxml/PaymentGenerationWizard.fxml");
 		this.alreadyCreatedPayments = alreadyCreatedPayments;
 		initUI();
+	}
+
+	@Override
+	protected String getTitle() {
+		return "Payment Generation Wizard";
 	}
 
 	// other

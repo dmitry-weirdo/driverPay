@@ -6,6 +6,8 @@ import com.magenta.echo.driverpay.core.db.DataManager;
 import com.magenta.echo.driverpay.core.entity.JobDto;
 import com.magenta.echo.driverpay.core.entity.JobRateDto;
 import com.magenta.echo.driverpay.core.entity.PaymentDto;
+import com.magenta.echo.driverpay.core.entity.PaymentReasonDto;
+import com.magenta.echo.driverpay.core.enums.JobType;
 import com.magenta.echo.driverpay.core.enums.PaymentStatus;
 import com.magenta.echo.driverpay.core.enums.PaymentType;
 import com.magenta.echo.driverpay.core.exception.EntryNotExist;
@@ -13,7 +15,10 @@ import com.magenta.echo.driverpay.ui.Utils;
 
 import java.sql.Types;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Project: Driver Pay
@@ -21,18 +26,10 @@ import java.util.List;
  * Created: 13-05-2016 01:00
  */
 public class JobBean extends AbstractBean{
-	private static final DataManager.ResultSetReader<JobDto> JOB_READER = resultSet -> new JobDto(
-			resultSet.getLong("id"),
-			LocalDate.ofEpochDay(resultSet.getLong("job_date")),
-			resultSet.getLong("driver_id"),
-			resultSet.getString("driver_value")
-	);
 
 	private static final DataManager.ResultSetReader<JobRateDto> JOB_RATE_READER = resultSet -> new JobRateDto(
 			resultSet.getLong("id"),
 			resultSet.getDouble("net"),
-			resultSet.getDouble("vat"),
-			resultSet.getDouble("total"),
 			resultSet.getString("nominal_code"),
 			resultSet.getString("tax_code")
 	);
@@ -41,17 +38,28 @@ public class JobBean extends AbstractBean{
 		return Context.get().getPaymentBean();
 	}
 
-	public List<JobDto> loadJobList(final LocalDate dateFrom, final LocalDate dateTo, final Long driverId)	{
+	public List<JobDto> loadJobList(final LocalDate dateFrom, final LocalDate dateTo, final Long driverId, final JobType type)	{
 		return getDataManager().executeQuery(
 				"select\n" +
-				"j.id,\n" +
-				"j.job_date,\n" +
-				"j.driver_id,\n" +
-				"d.name driver_value\n" +
+					"j.id,\n" +
+					"j.job_date,\n" +
+					"j.type,\n" +
+					"j.driver_id,\n" +
+					"d.name driver_value\n," +
+					"sum(jr.net) total\n" +
 				"from jobs j\n" +
 				"join drivers d on j.driver_id = d.id\n" +
+				"join job_rates jr on j.id = jr.job_id\n" +
 				"where\n" +
-				"j.job_date > ? and j.job_date <= ? and (? is null or j.driver_id = ?)",
+					"j.job_date > ? \n" +
+					"and j.job_date <= ? \n" +
+					"and (? is null or j.driver_id = ?)\n" +
+					"and (? is null or j.type = ?)\n" +
+				"group by\n" +
+					"j.id,\n" +
+					"j.job_date,\n" +
+					"j.driver_id,\n" +
+					"d.name",
 				preparedStatement -> {
 					preparedStatement.setLong(1, Utils.startDateToLong(dateFrom));
 					preparedStatement.setLong(2, Utils.endDateToLong(dateTo));
@@ -62,24 +70,46 @@ public class JobBean extends AbstractBean{
 						preparedStatement.setLong(3, driverId);
 						preparedStatement.setLong(4, driverId);
 					}
+					if(type == null)	{
+						preparedStatement.setNull(5, Types.INTEGER);
+						preparedStatement.setNull(6, Types.INTEGER);
+					}else {
+						preparedStatement.setString(5, type.name());
+						preparedStatement.setString(6, type.name());
+					}
 				},
-				JOB_READER
+				resultSet -> new JobDto(
+						resultSet.getLong("id"),
+						LocalDate.ofEpochDay(resultSet.getLong("job_date")),
+						JobType.valueOf(resultSet.getString("type")),
+						resultSet.getLong("driver_id"),
+						resultSet.getString("driver_value"),
+						resultSet.getDouble("total")
+				)
 		);
 	}
 
 	public JobDto loadJob(final Long id)	{
 		final List<JobDto> result = getDataManager().executeQuery(
 				"select\n" +
-				"j.id,\n" +
-				"j.job_date,\n" +
-				"j.driver_id,\n" +
-				"d.name driver_value\n" +
+					"j.id,\n" +
+					"j.job_date,\n" +
+					"j.type,\n" +
+					"j.driver_id,\n" +
+					"d.name driver_value\n" +
 				"from jobs j\n" +
 				"join drivers d on j.driver_id = d.id\n" +
 				"where\n" +
-				"j.id = ?",
+					"j.id = ?",
 				preparedStatement -> preparedStatement.setLong(1,id),
-				JOB_READER
+				resultSet -> new JobDto(
+						resultSet.getLong("id"),
+						LocalDate.ofEpochDay(resultSet.getLong("job_date")),
+						JobType.valueOf(resultSet.getString("type")),
+						resultSet.getLong("driver_id"),
+						resultSet.getString("driver_value"),
+						0D
+				)
 		);
 
 		if(result.size() != 1)	{
@@ -92,15 +122,13 @@ public class JobBean extends AbstractBean{
 	public List<JobRateDto> loadJobRateList(final Long jobId)	{
 		return getDataManager().executeQuery(
 				"select\n" +
-				"id,\n" +
-				"net,\n" +
-				"vat,\n" +
-				"total,\n" +
-				"nominal_code,\n" +
-				"tax_code\n" +
+					"id,\n" +
+					"net,\n" +
+					"nominal_code,\n" +
+					"tax_code\n" +
 				"from job_rates\n" +
 				"where\n" +
-				"job_id = ?",
+					"job_id = ?",
 				preparedStatement -> preparedStatement.setLong(1,jobId),
 				JOB_RATE_READER
 		);
@@ -110,50 +138,69 @@ public class JobBean extends AbstractBean{
 
 		try(final ConnectionExt connection = getDataManager().getConnection())	{
 
+			final PaymentReasonDto paymentReason = makePaymentReasonBasedOnJob(jobDto);
+			final PaymentDto payment = makePaymentBasedOnJobRates(jobDto, jobRateDtoList);
+
 			Long jobId;
 
 			if(jobDto.getId() == null)	{
 
-				jobId = addJob(jobDto.getJobDate(), jobDto.getDriverId());
+				final Long paymentReasonId = getPaymentBean().updatePaymentReason(paymentReason, Collections.singletonList(payment));
+				jobId = addJob(jobDto.getJobDate(), jobDto.getType(), jobDto.getDriverId(), paymentReasonId);
 
 			}else {
 
 				jobId = jobDto.getId();
-				updateJob(jobId, jobDto.getJobDate(), jobDto.getDriverId());
+				fillPaymentWithId(jobId, paymentReason, payment);
+				getPaymentBean().updatePaymentReason(paymentReason, Collections.singletonList(payment));
+				updateJob(jobId, jobDto.getJobDate(), jobDto.getType(), jobDto.getDriverId(), paymentReason.getId());
 
 			}
 
 			updateJobRateList(jobId, jobRateDtoList);
-			updateJobPayment(jobId);
 
 			connection.success();
 
 		}catch(Exception e)	{
-			e.printStackTrace();
-			getLogger().error(e);
+			throw new RuntimeException(e);
 		}
 
 	}
 
 	//
 
-	private Long addJob(final LocalDate jobDate, final Long driverId)	{
+	private Long addJob(
+			final LocalDate jobDate,
+			final JobType jobType,
+			final Long driverId,
+			final Long paymentReasonId
+	)	{
 		return getDataManager().executeInsert(
-				"insert into jobs (id,job_date,driver_id) values (null,?,?)",
+				"insert into jobs (id,job_date,type,driver_id,payment_reason_id) values (null,?,?,?,?)",
 				preparedStatement -> {
 					preparedStatement.setLong(1,jobDate.toEpochDay());
-					preparedStatement.setLong(2,driverId);
+					preparedStatement.setString(2,jobType.name());
+					preparedStatement.setLong(3,driverId);
+					preparedStatement.setLong(4,paymentReasonId);
 				}
 		);
 	}
 
-	private void updateJob(final Long jobId, final LocalDate jobDate, final Long driverId)	{
+	private void updateJob(
+			final Long jobId,
+			final LocalDate jobDate,
+			final JobType jobType,
+			final Long driverId,
+			final Long paymentReasonId
+	)	{
 		getDataManager().executeUpdate(
-				"update jobs set job_date = ?, driver_id = ? where id = ?",
+				"update jobs set job_date = ?, type = ?, driver_id = ?, payment_reason_id = ? where id = ?",
 				preparedStatement -> {
 					preparedStatement.setLong(1, jobDate.toEpochDay());
-					preparedStatement.setLong(2, driverId);
-					preparedStatement.setLong(3, jobId);
+					preparedStatement.setString(2, jobType.name());
+					preparedStatement.setLong(3, driverId);
+					preparedStatement.setLong(4, paymentReasonId);
+					preparedStatement.setLong(5, jobId);
 				}
 		);
 	}
@@ -176,8 +223,6 @@ public class JobBean extends AbstractBean{
 				addJobRate(
 						jobId,
 						jobRateDto.getNet(),
-						jobRateDto.getVat(),
-						jobRateDto.getTotal(),
 						jobRateDto.getNominalCode(),
 						jobRateDto.getTaxCode()
 				);
@@ -186,8 +231,6 @@ public class JobBean extends AbstractBean{
 						jobRateDto.getId(),
 						jobId,
 						jobRateDto.getNet(),
-						jobRateDto.getVat(),
-						jobRateDto.getTotal(),
 						jobRateDto.getNominalCode(),
 						jobRateDto.getTaxCode()
 				);
@@ -202,20 +245,16 @@ public class JobBean extends AbstractBean{
 	private void addJobRate(
 			final Long jobId,
 			final Double net,
-			final Double vat,
-			final Double total,
 			final String nominalCode,
 			final String taxCode
 	)	{
 		getDataManager().executeInsert(
-				"insert into job_rates (id,job_id,net,vat,total,nominal_code,tax_code) values (null,?,?,?,?,?,?)",
+				"insert into job_rates (id,job_id,net,nominal_code,tax_code) values (null,?,?,?,?)",
 				preparedStatement -> {
 					preparedStatement.setLong(1,jobId);
 					preparedStatement.setDouble(2,net);
-					preparedStatement.setDouble(3,vat);
-					preparedStatement.setDouble(4,total);
-					preparedStatement.setString(5,nominalCode);
-					preparedStatement.setString(6,taxCode);
+					preparedStatement.setString(3,nominalCode);
+					preparedStatement.setString(4,taxCode);
 				}
 		);
 	}
@@ -224,21 +263,17 @@ public class JobBean extends AbstractBean{
 			final Long id,
 			final Long jobId,
 			final Double net,
-			final Double vat,
-			final Double total,
 			final String nominalCode,
 			final String taxCode
 	)	{
 		getDataManager().executeUpdate(
-				"update job_rates set job_id = ?, net = ?, vat = ?, total = ?, nominal_code = ?, tax_code = ? where id = ?",
+				"update job_rates set job_id = ?, net = ?, nominal_code = ?, tax_code = ? where id = ?",
 				preparedStatement -> {
 					preparedStatement.setLong(1,jobId);
 					preparedStatement.setDouble(2,net);
-					preparedStatement.setDouble(3,vat);
-					preparedStatement.setDouble(4,total);
-					preparedStatement.setString(5,nominalCode);
-					preparedStatement.setString(6,taxCode);
-					preparedStatement.setLong(7,id);
+					preparedStatement.setString(3,nominalCode);
+					preparedStatement.setString(4,taxCode);
+					preparedStatement.setLong(5,id);
 				}
 		);
 	}
@@ -252,53 +287,51 @@ public class JobBean extends AbstractBean{
 
 	//
 
-	private void updateJobPayment(final Long jobId)	{
-		final List<Long> jobPaymentIds = getDataManager().executeQuery(
-				"select id from payments where job_id = ?",
+	private void fillPaymentWithId(final Long jobId, final PaymentReasonDto paymentReason, final PaymentDto payment)	{
+		final List<Long> ids = getDataManager().executeSingleQuery(
+				"select j.payment_reason_id, p.id payment_id " +
+						"from jobs j " +
+						"join payments p on j.payment_reason_id = p.payment_reason_id " +
+						"where j.id = ?",
 				preparedStatement -> preparedStatement.setLong(1,jobId),
-				resultSet -> resultSet.getLong("id")
+				resultSet -> Arrays.asList(
+						resultSet.getLong("payment_reason_id"),
+						resultSet.getLong("payment_id")
+				)
 		);
 
-		final PaymentDto newPayment = makePaymentBasedOnJobRates(jobId);
-
-		if(jobPaymentIds.isEmpty())	{
-			newPayment.setId(null);
-			getPaymentBean().updatePayment(null,jobId,newPayment);
-		}
+		paymentReason.setId(ids.get(0));
+		payment.setId(ids.get(1));
 
 	}
 
-	private PaymentDto makePaymentBasedOnJobRates(final Long jobId)	{
-		final List<PaymentDto> result = getDataManager().executeQuery(
-				"select " +
-				"null id, " +
-				"j.job_date planned_date, " +
-				"j.driver_id," +
-				"'' driver_value," +
-				"sum(jr.net) net, " +
-				"sum(jr.vat) vat, " +
-				"sum(jr.total) total, " +
-				"'' nominal_code, " +
-				"'' tax_code, " +
-				"? type, " +
-				"? status " +
-				"from jobs j " +
-				"join job_rates jr on j.id = jr.job_id " +
-				"where job_id = ? " +
-				"group by j.id",
-				preparedStatement -> {
-					preparedStatement.setString(1, PaymentType.REGULAR_JOB.name());
-					preparedStatement.setString(2, PaymentStatus.NONE.name());
-					preparedStatement.setLong(3, jobId);
-				},
-				PaymentBean.PAYMENT_READER
+	private PaymentReasonDto makePaymentReasonBasedOnJob(final JobDto job)	{
+		return new PaymentReasonDto(
+				null,
+				"Regular Job",
+				job.getDriverId(),
+				job.getDriverValue(),
+				PaymentType.REGULAR_JOB
+		);
+	}
+
+	private PaymentDto makePaymentBasedOnJobRates(final JobDto job, final List<JobRateDto> jobRateList)	{
+
+		final Double total = jobRateList.stream().collect(Collectors.summingDouble(JobRateDto::getNet));
+		return new PaymentDto(
+				null,
+				PaymentType.REGULAR_JOB,
+				PaymentStatus.NONE,
+				job.getJobDate(),
+				job.getDriverId(),
+				job.getDriverValue(),
+				total,
+				0D,
+				total,
+				"",
+				""
 		);
 
-		if(result.size() != 1)	{
-			throw new RuntimeException("Unable to make job payment");
-		}
-
-		return result.get(0);
 	}
 
 }

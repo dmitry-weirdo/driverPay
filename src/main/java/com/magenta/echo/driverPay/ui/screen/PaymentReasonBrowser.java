@@ -1,12 +1,15 @@
 package com.magenta.echo.driverpay.ui.screen;
 
+import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker;
+import com.evgenltd.kwickui.controls.objectpicker.SimpleObject;
+import com.evgenltd.kwickui.core.Screen;
+import com.evgenltd.kwickui.core.UIContext;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.PaymentBean;
-import com.magenta.echo.driverpay.core.entity.DriverDto;
 import com.magenta.echo.driverpay.core.entity.PaymentReasonDto;
 import com.magenta.echo.driverpay.core.enums.PaymentType;
+import com.magenta.echo.driverpay.ui.PickerHelper;
 import com.magenta.echo.driverpay.ui.cellfactory.OptionalPaymentTypeListCell;
-import com.magenta.echo.driverpay.ui.dialog.SelectDriver;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,10 +38,8 @@ public class PaymentReasonBrowser extends Screen {
 	@FXML private TableColumn<PaymentReasonDto,String> driverColumn;
 	@FXML private TableColumn<PaymentReasonDto,String> typeColumn;
 
-	@FXML private Button selectDriver;
+	@FXML private ObjectPicker<SimpleObject> selectDriver;
 	@FXML private ComboBox<Optional<PaymentType>> selectType;
-
-	private Long selectedDriverId;
 
     public PaymentReasonBrowser() {
         super("/fxml/PaymentReasonBrowser.fxml");
@@ -46,7 +47,12 @@ public class PaymentReasonBrowser extends Screen {
         loadData();
     }
 
-    private void initUI()   {
+	@Override
+	public String getTitle() {
+		return "Payment Reason Browser";
+	}
+
+	private void initUI()   {
 
 		selectType.setCellFactory(param -> new OptionalPaymentTypeListCell(false));
 		selectType.setButtonCell(new OptionalPaymentTypeListCell(true));
@@ -66,14 +72,27 @@ public class PaymentReasonBrowser extends Screen {
 		driverColumn.setCellValueFactory(new PropertyValueFactory<>("driverValue"));
 		typeColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getType().getLabel()));
 
-		table.getSelectionModel().selectedItemProperty().addListener(param -> editPaymentReasonButton.setDisable(table.getSelectionModel().isEmpty()));
+		table.getSelectionModel().selectedItemProperty().addListener(
+				param -> editPaymentReasonButton.setDisable(
+						table
+								.getSelectionModel()
+								.isEmpty()
+				)
+		);
     }
 
     private void loadData() {
-		final Optional<PaymentType> selectedType = selectType.getValue();
+		PickerHelper.setupDriverPicker(selectDriver);
+
         table.getItems().setAll(paymentBean.loadPaymentReasonList(
-				selectedDriverId,
-				selectedType.orElse(null)
+				selectDriver
+						.getSelectedObject()
+						.map(SimpleObject::getId)
+						.orElse(null),
+				selectType
+						.getSelectionModel()
+						.getSelectedItem()
+						.orElse(null)
 		));
     }
 
@@ -81,7 +100,7 @@ public class PaymentReasonBrowser extends Screen {
 
     @FXML
     private void handleAddPaymentReason(ActionEvent actionEvent) {
-		Context.get().openScreen(new PaymentReasonEdit(null));
+		UIContext.get().openScreen(new PaymentReasonEdit(null));
     }
 
     @FXML
@@ -89,23 +108,17 @@ public class PaymentReasonBrowser extends Screen {
 		if(table.getSelectionModel().isEmpty()) {
 			return;
 		}
-		Context.get().openScreen(new PaymentReasonEdit(table.getSelectionModel().getSelectedItem().getId()));
+		UIContext.get().openScreen(new PaymentReasonEdit(
+				table
+						.getSelectionModel()
+						.getSelectedItem()
+						.getId()
+		));
     }
 
 	@FXML
-	private void handleSelectDriver(ActionEvent event) {
-		final Optional<DriverDto> result = Context.get().openDialogAndWait(new SelectDriver());
-		if(!result.isPresent())	{
-			return;
-		}
-		selectDriver.setText(result.get().getName());
-		selectedDriverId = result.get().getId();
-	}
-
-	@FXML
 	private void handleClear(ActionEvent event) {
-		selectDriver.setText("Select Driver...");
-		selectedDriverId = null;
+		selectDriver.clear();
 		selectType.setValue(Optional.empty());
 	}
 

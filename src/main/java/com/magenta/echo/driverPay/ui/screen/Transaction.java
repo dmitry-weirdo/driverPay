@@ -1,5 +1,6 @@
 package com.magenta.echo.driverpay.ui.screen;
 
+import com.evgenltd.kwickui.core.Screen;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.PaymentProcessBean;
 import com.magenta.echo.driverpay.core.entity.TransactionDto;
@@ -44,7 +45,11 @@ public class Transaction extends Screen {
 		loadData();
 	}
 
-	// other
+	@Override
+	public String getTitle() {
+		return "Transaction Log";
+	}
+// other
 
 	private void initUI()	{
 		idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
