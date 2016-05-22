@@ -69,9 +69,6 @@
          </tabs>
       </TabPane>
       <BorderPane>
-         <left>
-            <Button mnemonicParsing="false" onAction="#handleHome" text="Home" BorderPane.alignment="CENTER" />
-         </left>
          <right>
             <HBox spacing="4.0" BorderPane.alignment="CENTER">
                <children>

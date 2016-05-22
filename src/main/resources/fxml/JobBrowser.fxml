@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -9,7 +10,8 @@
          <children>
             <DatePicker fx:id="dateFrom" prefWidth="100.0" promptText="Date From" />
             <DatePicker fx:id="dateTo" prefWidth="100.0" promptText="Date To" />
-            <Button fx:id="selectDriver" mnemonicParsing="false" onAction="#handleSelectDriver" prefWidth="100.0" text="Select Driver..." />
+            <ObjectPicker fx:id="driver" prefWidth="100.0" promptText="Driver" />
+            <ComboBox fx:id="type" prefWidth="100.0" />
             <Separator orientation="VERTICAL" />
             <Button mnemonicParsing="false" onAction="#handleClear" text="Clear" />
             <Button mnemonicParsing="false" onAction="#handleSearch" text="Search" />
@@ -27,12 +29,13 @@
               <columns>
                 <TableColumn fx:id="idColumn" editable="false" minWidth="-1.0" text="Id" />
                   <TableColumn fx:id="jobDateColumn" editable="false" minWidth="-1.0" text="Job Date" />
+                  <TableColumn fx:id="typeColumn" editable="false" minWidth="-1.0" text="Type" />
                   <TableColumn fx:id="driverColumn" editable="false" minWidth="-1.0" text="Driver" />
+                  <TableColumn fx:id="totalColumn" editable="false" minWidth="-1.0" text="Total" />
               </columns>
             </TableView>
          </children>
       </VBox>
-      <Button mnemonicParsing="false" onAction="#handleHome" text="Home" />
    </children>
    <padding>
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />

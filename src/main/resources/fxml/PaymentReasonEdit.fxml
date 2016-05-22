@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" spacing="4.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.screen.PaymentReasonEdit">
+<VBox spacing="4.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.screen.PaymentReasonEdit">
    <children>
-      <Label text="PAYMENT REASON EDIT">
+      <Label text="PAYMENT REASON EDIT" VBox.vgrow="NEVER">
          <font>
             <Font size="18.0" />
          </font>
@@ -16,11 +17,11 @@
             <Label text="Id" />
             <Label fx:id="idField" text="&lt;id&gt;" GridPane.columnIndex="1" />
             <Label text="Driver" GridPane.rowIndex="2" />
-            <TextField fx:id="nameField" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <TextField fx:id="nameField" prefWidth="150.0" promptText="Name" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <Label text="Type" GridPane.rowIndex="1" />
             <ComboBox fx:id="typeField" prefWidth="150.0" promptText="Payment Type" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Button fx:id="driverField" mnemonicParsing="false" onAction="#handleSelectDriver" prefWidth="150.0" text="Select Driver" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <Label text="Name" GridPane.rowIndex="3" />
+            <ObjectPicker fx:id="driverField" prefWidth="150.0" promptText="Driver" GridPane.columnIndex="1" GridPane.rowIndex="2" />
          </children>
          <columnConstraints>
             <ColumnConstraints hgrow="NEVER" />
@@ -35,7 +36,7 @@
       </GridPane>
       <VBox VBox.vgrow="ALWAYS">
          <children>
-            <ToolBar>
+            <ToolBar VBox.vgrow="NEVER">
                <items>
                   <Button mnemonicParsing="false" onAction="#handleAddPayment" text="Add" />
                   <Button fx:id="editPaymentButton" disable="true" mnemonicParsing="false" onAction="#handleEditPayment" text="Edit" />
@@ -56,12 +57,10 @@
                   <TableColumn fx:id="statusColumn" editable="false" prefWidth="75.0" text="Status" />
                </columns>
             </TableView>
+            <HBox fx:id="totalsPane" alignment="CENTER_LEFT" VBox.vgrow="NEVER" />
          </children>
       </VBox>
-      <BorderPane>
-         <left>
-            <Button mnemonicParsing="false" onAction="#handleHome" text="Home" BorderPane.alignment="CENTER" />
-         </left>
+      <BorderPane VBox.vgrow="NEVER">
          <right>
             <HBox spacing="4.0" BorderPane.alignment="CENTER">
                <children>

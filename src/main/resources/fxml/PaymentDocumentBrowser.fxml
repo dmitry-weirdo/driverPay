@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -9,7 +10,7 @@
          <children>
             <DatePicker fx:id="dateFrom" prefWidth="100.0" promptText="Date From" />
             <DatePicker fx:id="dateTo" prefWidth="100.0" promptText="Date To" />
-            <Button fx:id="driver" mnemonicParsing="false" onAction="#handleSelectDriver" text="Select Driver..." />
+            <ObjectPicker fx:id="driver" promptText="Driver" />
             <CheckBox fx:id="processed" mnemonicParsing="false" text="Processed" />
             <Separator orientation="VERTICAL" />
             <Button mnemonicParsing="false" onAction="#handleClear" text="Clear" />
@@ -25,9 +26,6 @@
          </columns>
       </TableView>
       <BorderPane>
-         <left>
-            <Button mnemonicParsing="false" onAction="#handleHome" text="Home" BorderPane.alignment="CENTER" />
-         </left>
          <right>
             <HBox spacing="4.0">
                <children>

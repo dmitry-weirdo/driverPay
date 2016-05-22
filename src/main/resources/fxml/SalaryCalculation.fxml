@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -9,7 +10,7 @@
          <children>
             <DatePicker fx:id="dateTo" prefWidth="100.0" promptText="Date To" />
             <DatePicker fx:id="dateFrom" prefWidth="100.0" promptText="Date From" />
-            <Button fx:id="driver" mnemonicParsing="false" onAction="#handleSelectDriver" prefWidth="100.0" text="Select Driver..." />
+            <ObjectPicker fx:id="driver" prefWidth="100.0" promptText="Driver" />
             <ComboBox fx:id="type" prefWidth="100.0" promptText="Type" />
             <ComboBox fx:id="status" prefWidth="100.0" promptText="Status" />
             <Separator orientation="VERTICAL" />
@@ -33,7 +34,6 @@
          <left>
             <HBox spacing="4.0">
                <children>
-                  <Button mnemonicParsing="false" onAction="#handleHome" text="Home" BorderPane.alignment="CENTER" />
                   <Button mnemonicParsing="false" onAction="#handleOpenPayments" text="Payments" />
                </children>
             </HBox>

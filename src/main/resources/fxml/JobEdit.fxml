@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -14,20 +15,23 @@
       <GridPane hgap="4.0" vgap="4.0">
         <columnConstraints>
           <ColumnConstraints hgrow="NEVER" />
-          <ColumnConstraints hgrow="ALWAYS" />
+          <ColumnConstraints hgrow="NEVER" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints vgrow="NEVER" />
+            <RowConstraints vgrow="NEVER" />
             <RowConstraints vgrow="NEVER" />
             <RowConstraints vgrow="NEVER" />
         </rowConstraints>
          <children>
             <Label text="Id" />
             <Label fx:id="idField" text="&lt;id&gt;" GridPane.columnIndex="1" />
-            <Label text="Date" GridPane.rowIndex="1" />
-            <DatePicker fx:id="jobDateField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label text="Driver" GridPane.rowIndex="2" />
-            <Button fx:id="driverField" mnemonicParsing="false" onAction="#handleSelectDriver" prefWidth="175.0" text="Select Driver" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label text="Date" GridPane.rowIndex="2" />
+            <DatePicker fx:id="jobDateField" prefWidth="150.0" promptText="Job Date" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label text="Driver" GridPane.rowIndex="3" />
+            <ObjectPicker fx:id="driverField" prefWidth="150.0" promptText="Driver" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <Label text="Type" GridPane.rowIndex="1" />
+            <ComboBox fx:id="typeField" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
          </children>
       </GridPane>
       <VBox VBox.vgrow="ALWAYS">
@@ -43,18 +47,14 @@
               <columns>
                 <TableColumn fx:id="rateIdColumn" editable="false" prefWidth="75.0" text="Id" />
                 <TableColumn fx:id="rateNetColumn" editable="false" prefWidth="75.0" text="Net" />
-                  <TableColumn fx:id="rateVatColumn" editable="false" prefWidth="75.0" text="Vat" />
-                  <TableColumn fx:id="rateTotalColumn" editable="false" prefWidth="75.0" text="Total" />
                   <TableColumn fx:id="rateNominalCodeColumn" editable="false" prefWidth="75.0" text="Nominal Code" />
                   <TableColumn fx:id="rateTaxCodeColumn" editable="false" prefWidth="75.0" text="Tax Code" />
               </columns>
             </TableView>
+            <HBox fx:id="totalPane" />
          </children>
       </VBox>
       <BorderPane>
-         <left>
-            <Button mnemonicParsing="false" onAction="#handleHome" text="Home" BorderPane.alignment="CENTER" />
-         </left>
          <right>
             <HBox spacing="4.0" BorderPane.alignment="CENTER">
                <children>
