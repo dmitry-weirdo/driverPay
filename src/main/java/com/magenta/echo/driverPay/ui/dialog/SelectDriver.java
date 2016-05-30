@@ -1,10 +1,11 @@
 package com.magenta.echo.driverpay.ui.dialog;
 
-import com.evgenltd.kwickui.controls.objectpicker.SimpleObject;
-import com.evgenltd.kwickui.controls.objectpicker.SimpleObjectListCell;
 import com.evgenltd.kwickui.core.DialogScreen;
+import com.evgenltd.kwickui.extensions.listview.ListViewExtension;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.DriverBean;
+import com.magenta.echo.driverpay.core.entity.Driver;
+import com.magenta.echo.driverpay.ui.cellfactory.DriverListCell;
 import javafx.fxml.FXML;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
@@ -14,11 +15,11 @@ import javafx.scene.control.ListView;
  * Author:  Evgeniy
  * Created: 14-05-2016 02:58
  */
-public class SelectDriver extends DialogScreen<SimpleObject> {
+public class SelectDriver extends DialogScreen<Driver> {
 
 	private DriverBean driverBean = Context.get().getDriverBean();
 
-	@FXML private ListView<SimpleObject> driverList;
+	@FXML private ListView<Driver> driverList;
 
 	public SelectDriver() {
 		super("/fxml/SelectDriver.fxml");
@@ -34,7 +35,11 @@ public class SelectDriver extends DialogScreen<SimpleObject> {
 	// other
 
 	private void initUI()	{
-		driverList.setCellFactory(param -> new SimpleObjectListCell());
+		driverList.setCellFactory(param -> new DriverListCell());
+		ListViewExtension.setupDoubleClickEvent(driverList,driver -> {
+			getDialog().setResult(driver);
+			getDialog().close();
+		});
 		getDialog().setTitle("Select Driver");
 		getDialog().setHeaderText(null);
 		getDialog().getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -47,11 +52,11 @@ public class SelectDriver extends DialogScreen<SimpleObject> {
 	// handlers
 
 	@Override
-	protected SimpleObject resultConverter(ButtonType buttonType) {
+	protected Driver resultConverter(ButtonType buttonType) {
 		if(ButtonType.OK.equals(buttonType))	{
-			final SimpleObject selectedDriverDto = driverList.getSelectionModel().getSelectedItem();
-			if(selectedDriverDto != null)	{
-				return selectedDriverDto;
+			final Driver selectedDriver = driverList.getSelectionModel().getSelectedItem();
+			if(selectedDriver != null)	{
+				return selectedDriver;
 			}
 		}
 		return null;

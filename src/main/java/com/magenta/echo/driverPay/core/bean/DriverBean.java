@@ -1,123 +1,53 @@
 package com.magenta.echo.driverpay.core.bean;
 
-import com.evgenltd.kwickui.controls.objectpicker.SimpleObject;
-import com.magenta.echo.driverpay.core.db.ConnectionExt;
-import com.magenta.echo.driverpay.core.entity.DriverDto;
-import com.magenta.echo.driverpay.core.enums.BalanceType;
+import com.magenta.echo.driverpay.core.Queries;
+import com.magenta.echo.driverpay.core.entity.Driver;
+import com.magenta.echo.driverpay.core.entity.dto.DriverDto;
+import org.hibernate.internal.SQLQueryImpl;
+import org.hibernate.transform.Transformers;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 /**
- * Project: Driver Pay
- * Author:  Lebedev
- * Created: 13-05-2016 17:43
+ * Project: driverPay-prototype
+ * Author:  Evgeniy
+ * Created: 28-05-2016 19:53
  */
+@Component
+@Transactional
 public class DriverBean extends AbstractBean {
 
-	public List<SimpleObject> loadDriverList(final String pattern)	{
+	@SuppressWarnings("unchecked")
+	public List<DriverDto> loadDriverList() {
 
-		return getDataManager().executeQuery(
-				"select\n" +
-					"d.id,\n" +
-					"d.name\n" +
-				"from drivers d\n" +
-				"where d.name like ?",
-				preparedStatement -> preparedStatement.setString(1,"%"+pattern+"%"),
-				resultSet -> new SimpleObject(
-						resultSet.getLong("id"),
-						resultSet.getString("name")
-				)
-		);
+		return getEntityManager()
+				.createNativeQuery(getQuery(Queries.LOAD_DRIVER_LIST_WITH_BALANCES))
+				.unwrap(SQLQueryImpl.class)
+				.setResultTransformer(Transformers.aliasToBean(DriverDto.class))
+				.list();
 
 	}
 
-    public List<DriverDto> loadDriverList() {
+	public DriverDto loadDriver(@NotNull final Long id) {
 
-        return getDataManager().executeQuery(
-				"select\n" +
-					"d.id,\n" +
-					"d.name\n" +
-				"from drivers d",
-				preparedStatement -> {},
-				resultSet -> new DriverDto(
-						resultSet.getLong("id"),
-						resultSet.getString("name")
-				)
-		);
-
-    }
-
-    public DriverDto loadDriver(@NotNull final Long driverId)    {
-
-		return getDataManager().executeSingleQuery(
-				"select\n" +
-					"d.id,\n" +
-					"d.name\n" +
-				"from drivers d\n" +
-				"where\n" +
-					"d.id = ?",
-				preparedStatement -> preparedStatement.setLong(1, driverId),
-				resultSet -> new DriverDto(
-						resultSet.getLong("id"),
-						resultSet.getString("name")
-				)
-		);
-
-    }
-
-    public void updateDriver(@NotNull final DriverDto driverDto) {
-
-		try(final ConnectionExt connection = getDataManager().getConnection()) {
-
-			if(driverDto.getId() == null)	{
-
-				addDriver(driverDto.getName());
-
-			}else {
-
-				updateDriver(driverDto.getId(), driverDto.getName());
-
-			}
-
-			connection.success();
-
-		}catch(Exception e) {
-			throw new RuntimeException(e);
-		}
+		return (DriverDto)getEntityManager()
+				.createNativeQuery(getQuery(Queries.LOAD_DRIVER_WITH_ADDITIONAL_INFO))
+				.setParameter("id", id)
+				.unwrap(SQLQueryImpl.class)
+				.setResultTransformer(Transformers.aliasToBean(DriverDto.class))
+				.uniqueResult();
 
 	}
 
-	private Long addBalance(@NotNull final BalanceType type, @NotNull final Long driverId)	{
-		return getDataManager().executeInsert(
-				"insert into balances (id,type,driver_id) values (null,?,?)",
-				preparedStatement -> {
-					preparedStatement.setString(1, type.name());
-					preparedStatement.setLong(2, driverId);
-				}
-		);
-	}
+	public List<Driver> loadDriverList(@NotNull final String pattern) {
 
-	private void addDriver(@NotNull final String name)	{
-
-		final Long driverId = getDataManager().executeInsert(
-				"insert into drivers (id,name) values (null,?)",
-				preparedStatement -> preparedStatement.setString(1,name)
-		);
-
-		addBalance(BalanceType.DRIVER, driverId);
-		addBalance(BalanceType.DEPOSIT, driverId);
+		return getEntityManager()
+				.createQuery(getQuery(Queries.LOAD_DRIVER_LIST_BY_PATTERN), Driver.class)
+				.setParameter("pattern", "%"+pattern+"%")
+				.getResultList();
 
 	}
-
-	private void updateDriver(@NotNull final Long id, @NotNull final String name)	{
-		getDataManager().executeUpdate(
-				"update drivers set name = ? where id = ?",
-				preparedStatement -> {
-					preparedStatement.setString(1, name);
-					preparedStatement.setLong(2, id);
-				}
-		);
-	}
-
 }

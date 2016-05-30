@@ -2,10 +2,12 @@ package com.magenta.echo.driverpay.ui;
 
 import com.evgenltd.kwickui.core.UIContext;
 import com.magenta.echo.driverpay.core.Context;
-import com.magenta.echo.driverpay.core.Scheme;
+import com.magenta.echo.driverpay.core.ContextConfig;
+import com.magenta.echo.driverpay.core.bean.InitDatabaseBean;
 import com.magenta.echo.driverpay.ui.screen.Main;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * Project: Driver Pay
@@ -15,8 +17,11 @@ import javafx.stage.Stage;
 public class Application extends javafx.application.Application {
     public void start(final Stage primaryStage) throws Exception {
 
-        Context.get();
-        Scheme.initDatabase();
+        final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ContextConfig.class);
+		final InitDatabaseBean initDatabaseBean = context.getBean(InitDatabaseBean.class);
+		initDatabaseBean.init();
+
+		Context.get().setSpringContext(context);
 
 		UIContext.get().initialization(primaryStage);
         UIContext.get().setHome(new Main().getRoot());

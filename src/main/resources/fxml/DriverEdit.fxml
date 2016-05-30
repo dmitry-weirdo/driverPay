@@ -1,25 +1,176 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<GridPane hgap="4.0" vgap="4.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.dialog.DriverEdit">
+<VBox spacing="4.0" xmlns="http://javafx.com/javafx/8.0.72" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.screen.driverEdit.DriverEdit">
    <children>
-      <Label text="Id" />
-      <Label fx:id="id" text="&lt;id&gt;" GridPane.columnIndex="1" />
-      <Label text="Name" GridPane.rowIndex="1" />
-      <TextField fx:id="name" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      <HBox alignment="CENTER_LEFT" spacing="4.0" VBox.vgrow="NEVER">
+         <children>
+            <Label text="Name" />
+            <TextField fx:id="name" />
+         </children>
+      </HBox>
+      <HBox VBox.vgrow="NEVER">
+         <children>
+            <GridPane hgap="4.0" style="-fx-background-color: yellow,lightyellow; -fx-background-insets: 6,8; -fx-padding: 12; -fx-background-radius: 10;" vgap="4.0">
+              <columnConstraints>
+                <ColumnConstraints fillWidth="false" hgrow="NEVER" />
+                <ColumnConstraints fillWidth="false" halignment="RIGHT" hgrow="NEVER" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints vgrow="NEVER" />
+                <RowConstraints vgrow="NEVER" />
+                <RowConstraints vgrow="NEVER" />
+                  <RowConstraints vgrow="NEVER" />
+              </rowConstraints>
+               <children>
+                  <Label text="Last salary calculation" />
+                  <Label text="Last processing" GridPane.rowIndex="1" />
+                  <Label text="Calculated salary" GridPane.rowIndex="2" />
+                  <Label text="Deposit" GridPane.rowIndex="3" />
+                  <Label fx:id="lastSalaryCalculationDate" text="&lt;last_salary_calculation_date&gt;" GridPane.columnIndex="1" />
+                  <Label fx:id="lastProcessingDate" text="&lt;last_processing_date&gt;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <Label fx:id="calculatedSalary" text="&lt;calculated_salary&gt;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <Label fx:id="depositState" text="&lt;deposit_state&gt;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+               </children>
+            </GridPane>
+         </children>
+      </HBox>
+      <HBox fx:id="toggleButtonPane">
+         <children>
+            <ToggleButton fx:id="toggleButtonCharges" mnemonicParsing="false" text="Charges" />
+            <ToggleButton fx:id="toggleButtonSalaryCalculation" mnemonicParsing="false" text="Salary Calculation" />
+            <ToggleButton fx:id="toggleButtonProcessing" mnemonicParsing="false" text="Processing" />
+         </children>
+         <padding>
+            <Insets bottom="4.0" left="12.0" right="12.0" top="4.0" />
+         </padding>
+      </HBox>
+      <StackPane VBox.vgrow="ALWAYS">
+         <children>
+            <VBox fx:id="chargesPane" visible="false">
+               <children>
+                  <ToolBar VBox.vgrow="NEVER">
+                    <items>
+                        <MenuButton mnemonicParsing="false" text="Add">
+                          <items>
+                            <MenuItem mnemonicParsing="false" onAction="#handleChargesAddCredit" text="Credit" />
+                            <MenuItem mnemonicParsing="false" onAction="#handleChargesAddDeduction" text="Dedutcion" />
+                          </items>
+                        </MenuButton>
+                      <Button fx:id="chargesEdit" mnemonicParsing="false" onAction="#handleChargesEdit" text="Edit" />
+                        <Button fx:id="chargesRemove" mnemonicParsing="false" onAction="#handleChargesRemove" text="Remove" />
+                    </items>
+                  </ToolBar>
+                  <TableView fx:id="chargesTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                      <TableColumn fx:id="chargesTypeColumn" prefWidth="30.0" />
+                      <TableColumn fx:id="chargesNameColumn" prefWidth="75.0" text="Name" />
+                        <TableColumn fx:id="chargesScheduleRuleColumn" prefWidth="100.0" text="Schedule Rule" />
+                    </columns>
+                     <contextMenu>
+                        <ContextMenu>
+                          <items>
+                            <MenuItem mnemonicParsing="false" onAction="#handleChargesAddCredit" text="Add credit" />
+                              <MenuItem mnemonicParsing="false" onAction="#handleChargesAddDeduction" text="Add deduction" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="chargesContextMenuEdit" mnemonicParsing="false" onAction="#handleChargesEdit" text="Edit" />
+                              <MenuItem fx:id="chargesContextMenuRemove" mnemonicParsing="false" onAction="#handleChargesRemove" text="Remove" />
+                          </items>
+                        </ContextMenu>
+                     </contextMenu>
+                  </TableView>
+               </children>
+            </VBox>
+            <VBox fx:id="salaryCalculationPane" visible="false">
+               <children>
+                  <ToolBar VBox.vgrow="NEVER">
+                    <items>
+                        <MenuButton mnemonicParsing="false" text="Add">
+                          <items>
+                            <MenuItem mnemonicParsing="false" onAction="#handleSalaryCalculationAddCredit" text="Credit" />
+                            <MenuItem mnemonicParsing="false" onAction="#handleSalaryCalculationAddDeduction" text="Deduction" />
+                              <MenuItem mnemonicParsing="false" onAction="#handleSalaryCalculationAddCashPaymentBack" text="Cash Payment Back" />
+                              <MenuItem mnemonicParsing="false" onAction="#handleSalaryCalculationAddReleaseDeduction" text="Release Deposit" />
+                          </items>
+                        </MenuButton>
+                        <Button fx:id="salaryCalculationEdit" mnemonicParsing="false" onAction="#handleSalaryCalculationEdit" text="Edit" />
+                        <Button fx:id="salaryCalculationRemove" mnemonicParsing="false" onAction="#handleSalaryCalculationRemove" text="Remove" />
+                        <DatePicker fx:id="salaryCalculationUpTo" prefWidth="100.0" />
+                        <Separator orientation="VERTICAL" />
+                      <Button fx:id="salaryCalculationButton" mnemonicParsing="false" onAction="#handleCalculateSalary" text="Calculate..." />
+                    </items>
+                  </ToolBar>
+                  <TableView fx:id="salaryCalculationTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                      <TableColumn fx:id="salaryCalculationTypeColumn" prefWidth="30.0" />
+                      <TableColumn fx:id="salaryCalculationNameColumn" prefWidth="75.0" text="Name" />
+                        <TableColumn fx:id="salaryCalculationDateColumn" prefWidth="100.0" text="Date" />
+                        <TableColumn fx:id="salaryCalculationNetColumn" prefWidth="60.0" text="Net" />
+                        <TableColumn fx:id="salaryCalculationVatColumn" prefWidth="60.0" text="VAT" />
+                        <TableColumn fx:id="salaryCalculationTotalColumn" prefWidth="60.0" text="Total" />
+                        <TableColumn fx:id="salaryCalculationNominalCodeColumn" prefWidth="90.0" text="Nominal Code" />
+                        <TableColumn fx:id="salaryCalculationTaxCodeColumn" prefWidth="60.0" text="Tax Code" />
+                    </columns>
+                     <contextMenu>
+                        <ContextMenu>
+                          <items>
+                            <MenuItem mnemonicParsing="false" onAction="#handleSalaryCalculationAddCredit" text="Add credit" />
+                              <MenuItem mnemonicParsing="false" onAction="#handleSalaryCalculationAddDeduction" text="Add deduction" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="salaryCalculationContextMenuEdit" mnemonicParsing="false" onAction="#handleSalaryCalculationEdit" text="Edit" />
+                              <MenuItem fx:id="salaryCalculationContextMenuRemove" mnemonicParsing="false" onAction="#handleSalaryCalculationRemove" text="Remove" />
+                          </items>
+                        </ContextMenu>
+                     </contextMenu>
+                  </TableView>
+                  <HBox fx:id="salaryCalculationTableTotals" VBox.vgrow="NEVER" />
+               </children>
+            </VBox>
+            <VBox fx:id="processingPane">
+               <children>
+                  <VBox VBox.vgrow="ALWAYS">
+                     <children>
+                        <ToolBar>
+                          <items>
+                              <Button fx:id="processingRollbackCalculation" mnemonicParsing="false" onAction="#handleRollbackCalculation" text="Rollback calculation" />
+                            <Button fx:id="processingButton" mnemonicParsing="false" onAction="#handleProcessingButton" text="Process..." />
+                          </items>
+                        </ToolBar>
+                        <SplitPane dividerPositions="0.2" VBox.vgrow="ALWAYS">
+                           <items>
+                              <ListView fx:id="processingOperationsList" />
+                              <VBox>
+                                 <children>
+                                    <TableView fx:id="processingPaymentsTable" VBox.vgrow="ALWAYS">
+                                      <columns>
+                                        <TableColumn fx:id="processingTypeColumn" prefWidth="30.0" />
+                                        <TableColumn fx:id="processingNameColumn" prefWidth="75.0" text="Name" />
+                                          <TableColumn fx:id="processingPlannedDateColumn" prefWidth="100.0" text="Planned Date" />
+                                          <TableColumn fx:id="processingNetColumn" prefWidth="60.0" text="Net" />
+                                          <TableColumn fx:id="processingVatColumn" prefWidth="60.0" text="VAT" />
+                                          <TableColumn fx:id="processingTotalColumn" prefWidth="60.0" text="Total" />
+                                          <TableColumn fx:id="processingNominalCodeColumn" prefWidth="90.0" text="Nominal Code" />
+                                          <TableColumn fx:id="processingTaxCodeColumn" prefWidth="60.0" text="Tax Code" />
+                                      </columns>
+                                    </TableView>
+                                    <HBox fx:id="processingPaymentsTableTotals" VBox.vgrow="NEVER" />
+                                 </children>
+                              </VBox>
+                           </items>
+                        </SplitPane>
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+         </children>
+      </StackPane>
+      <HBox alignment="CENTER_RIGHT" spacing="4.0" VBox.vgrow="NEVER">
+         <children>
+            <Button defaultButton="true" mnemonicParsing="false" onAction="#handleApply" text="Apply" />
+            <Button cancelButton="true" mnemonicParsing="false" onAction="#handleClose" text="Close" />
+         </children>
+      </HBox>
    </children>
-   <columnConstraints>
-      <ColumnConstraints hgrow="NEVER" />
-      <ColumnConstraints hgrow="ALWAYS" />
-   </columnConstraints>
-   <padding>
-      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-   </padding>
-   <rowConstraints>
-      <RowConstraints vgrow="NEVER" />
-      <RowConstraints vgrow="NEVER" />
-   </rowConstraints>
-</GridPane>
+</VBox>

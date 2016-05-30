@@ -1,6 +1,6 @@
 package com.magenta.echo.driverpay.ui.cellfactory;
 
-import com.magenta.echo.driverpay.core.entity.DriverDto;
+import com.magenta.echo.driverpay.core.entity.Driver;
 import javafx.scene.control.ListCell;
 
 /**
@@ -8,9 +8,9 @@ import javafx.scene.control.ListCell;
  * Author:  Evgeniy
  * Created: 14-05-2016 03:02
  */
-public class DriverListCell extends ListCell<DriverDto> {
+public class DriverListCell extends ListCell<Driver> {
 	@Override
-	protected void updateItem(DriverDto item, boolean empty) {
+	protected void updateItem(Driver item, boolean empty) {
 		super.updateItem(item, empty);
 		if(empty || item == null)	{
 			setText("");

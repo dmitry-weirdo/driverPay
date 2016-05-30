@@ -20,29 +20,23 @@ public class Main extends Screen {
         return null;
     }
 
-    @FXML
-    private void handleDriversOpen(ActionEvent actionEvent) {
-        UIContext.get().openScreenInNewTab(new DriverBrowser());
-    }
+	@FXML
+	private void handleOpenJobs(ActionEvent event) {
+		UIContext.get().openScreenInNewTab(new JobBrowser());
+	}
 
-    @FXML
-    private void handleJobsOpen(ActionEvent actionEvent) {
-        UIContext.get().openScreenInNewTab(new JobBrowser());
-    }
+	@FXML
+	private void handleOpenDrivers(ActionEvent event) {
+		UIContext.get().openScreenInNewTab(new DriverBrowser());
+	}
 
-    @FXML
-    private void handleChargeBasesOpen(ActionEvent actionEvent) {
-        UIContext.get().openScreenInNewTab(new PaymentReasonBrowser());
-    }
+	@FXML
+	private void handleGlobalSalaryCalculation(ActionEvent event) {
 
-    @FXML
-    private void handleSalaryCalculationOpen(ActionEvent actionEvent) {
-		UIContext.get().openScreenInNewTab(new SalaryCalculation());
-    }
+	}
 
-    @FXML
-    private void handlePaymentsOpen(ActionEvent actionEvent) {
-		UIContext.get().openScreenInNewTab(new PaymentDocumentBrowser());
-    }
+	@FXML
+	private void handleGlobalProcessing(ActionEvent event) {
 
+	}
 }

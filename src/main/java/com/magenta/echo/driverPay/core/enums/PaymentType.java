@@ -13,7 +13,8 @@ public enum PaymentType {
 	DEPOSIT("Deposit"),					// from DRIVER  to DEPOSIT
 	RELEASE_DEPOSIT("Release Deposit"),	// from DEPOSIT to DRIVER
 	TAKE_DEPOSIT("Take Deposit"),		// from DEPOSIT to COMPANY
-	REFILL_DEPOSIT("Refill Deposit");	// from COMPANY to DEPOSIT
+	REFILL_DEPOSIT("Refill Deposit"),	// from COMPANY to DEPOSIT ???
+	CASH_PAYMENT("Cash Payment");		// from COMPANY to DRIVER
 
 	private String label;
 

@@ -10,6 +10,7 @@ import org.controlsfx.dialog.ExceptionDialog;
 public class UIExceptionHandler implements Thread.UncaughtExceptionHandler {
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
+		e.printStackTrace();
 		ExceptionDialog exceptionDialog = new ExceptionDialog(e);
 		exceptionDialog.showAndWait();
 	}

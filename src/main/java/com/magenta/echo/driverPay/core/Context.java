@@ -1,7 +1,8 @@
 package com.magenta.echo.driverpay.core;
 
 import com.magenta.echo.driverpay.core.bean.*;
-import com.magenta.echo.driverpay.core.db.DataManager;
+import com.magenta.echo.driverpay.core.bean.dao.*;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * Project: Driver Pay
@@ -11,13 +12,22 @@ import com.magenta.echo.driverpay.core.db.DataManager;
 public class Context {
     private static final Context context = new Context();
 
-    private final DataManager dataManager = new DataManager();
-	private final DriverBean driverBean = new DriverBean();
-	private final JobBean jobBean = new JobBean();
-	private final PaymentBean paymentBean = new PaymentBean();
-	private final SalaryCalculationBean salaryCalculationBean = new SalaryCalculationBean();
-	private final PaymentProcessBean paymentProcessBean = new PaymentProcessBean();
-	private final PaymentGenerationBean paymentGenerationBean = new PaymentGenerationBean();
+	private AnnotationConfigApplicationContext springContext;
+
+	private BalanceDao balanceDao;
+	private DriverDao driverDao;
+	private PaymentReasonDao paymentReasonDao;
+	private PaymentDao paymentDao;
+	private JobDao jobDao;
+	private JobRateDao jobRateDao;
+	private PaymentDocumentDao paymentDocumentDao;
+	private TransactionDao transactionDao;
+
+	private DriverBean driverBean;
+	private PaymentLoader paymentLoader;
+	private BalanceBean balanceBean;
+	private SalaryCalculationBean salaryCalculationBean;
+	private JobBean jobBean;
 
     protected Context()    {}
 
@@ -25,37 +35,100 @@ public class Context {
         return context;
     }
 
-	public String getDatabaseName()	{
-		return "driver-pay.db";
+	public void setSpringContext(AnnotationConfigApplicationContext springContext) {
+		this.springContext = springContext;
 	}
 
-    //
+	//
 
-	public DataManager getDataManager() {
-		return dataManager;
+	public BalanceDao getBalanceDao() {
+		if(balanceDao == null)	{
+			balanceDao = springContext.getBean(BalanceDao.class);
+		}
+		return balanceDao;
+	}
+
+	public DriverDao getDriverDao() {
+		if(driverDao == null)	{
+			driverDao = springContext.getBean(DriverDao.class);
+		}
+		return driverDao;
+	}
+
+	public PaymentReasonDao getPaymentReasonDao() {
+		if(paymentReasonDao == null)	{
+			paymentReasonDao = springContext.getBean(PaymentReasonDao.class);
+		}
+		return paymentReasonDao;
+	}
+
+	public PaymentDao getPaymentDao() {
+		if(paymentDao == null)	{
+			paymentDao = springContext.getBean(PaymentDao.class);
+		}
+		return paymentDao;
+	}
+
+	public JobDao getJobDao() {
+		if(jobDao == null)	{
+			jobDao = springContext.getBean(JobDao.class);
+		}
+		return jobDao;
+	}
+
+	public JobRateDao getJobRateDao() {
+		if(jobRateDao == null)	{
+			jobRateDao = springContext.getBean(JobRateDao.class);
+		}
+		return jobRateDao;
+	}
+
+	public PaymentDocumentDao getPaymentDocumentDao() {
+		if(paymentDocumentDao == null)	{
+			paymentDocumentDao = springContext.getBean(PaymentDocumentDao.class);
+		}
+		return paymentDocumentDao;
+	}
+
+	public TransactionDao getTransactionDao() {
+		if(transactionDao == null)	{
+			transactionDao = springContext.getBean(TransactionDao.class);
+		}
+		return transactionDao;
 	}
 
 	public DriverBean getDriverBean() {
+		if(driverBean == null)	{
+			driverBean = springContext.getBean(DriverBean.class);
+		}
 		return driverBean;
 	}
 
-	public JobBean getJobBean() {
-		return jobBean;
+	public PaymentLoader getPaymentLoader()	{
+		if(paymentLoader == null)	{
+			paymentLoader = springContext.getBean(PaymentLoader.class);
+		}
+		return paymentLoader;
 	}
 
-	public PaymentBean getPaymentBean() {
-		return paymentBean;
+	public BalanceBean getBalanceBean() {
+		if(balanceBean == null)	{
+			balanceBean = springContext.getBean(BalanceBean.class);
+		}
+		return balanceBean;
 	}
 
 	public SalaryCalculationBean getSalaryCalculationBean() {
+		if(salaryCalculationBean == null)	{
+			salaryCalculationBean = springContext.getBean(SalaryCalculationBean.class);
+		}
 		return salaryCalculationBean;
 	}
 
-	public PaymentProcessBean getPaymentProcessBean() {
-		return paymentProcessBean;
-	}
-
-	public PaymentGenerationBean getPaymentGenerationBean() {
-		return paymentGenerationBean;
+	public JobBean getJobBean() {
+		if(jobBean == null)	{
+			jobBean = springContext.getBean(JobBean.class);
+		}
+		return jobBean;
 	}
 }

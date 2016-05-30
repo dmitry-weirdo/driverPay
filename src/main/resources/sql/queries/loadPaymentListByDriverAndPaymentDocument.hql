@@ -1,0 +1,1 @@
+select p from Payment p where p.driver.id = :driverId and p.paymentDocument.id = :paymentDocumentId

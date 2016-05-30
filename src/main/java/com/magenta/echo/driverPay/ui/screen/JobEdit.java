@@ -1,26 +1,31 @@
 package com.magenta.echo.driverpay.ui.screen;
 
+import com.evgenltd.kwickui.controls.objectbrowser.ObjectBrowser;
 import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker;
-import com.evgenltd.kwickui.controls.objectpicker.SimpleObject;
 import com.evgenltd.kwickui.core.Screen;
 import com.evgenltd.kwickui.core.UIContext;
-import com.evgenltd.kwickui.extensions.tableview.TableViewExtension;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.JobBean;
-import com.magenta.echo.driverpay.core.entity.JobDto;
-import com.magenta.echo.driverpay.core.entity.JobRateDto;
+import com.magenta.echo.driverpay.core.bean.dao.JobDao;
+import com.magenta.echo.driverpay.core.entity.Driver;
+import com.magenta.echo.driverpay.core.entity.Job;
+import com.magenta.echo.driverpay.core.entity.JobRate;
 import com.magenta.echo.driverpay.core.enums.JobType;
-import com.magenta.echo.driverpay.ui.PickerHelper;
-import com.magenta.echo.driverpay.ui.Utils;
 import com.magenta.echo.driverpay.ui.cellfactory.OptionalJobTypeListCell;
 import com.magenta.echo.driverpay.ui.dialog.JobRateEdit;
+import com.magenta.echo.driverpay.ui.util.ObjectBrowserHelper;
+import com.magenta.echo.driverpay.ui.util.PickerHelper;
+import com.magenta.echo.driverpay.ui.util.Utils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Project: Driver Pay
@@ -29,27 +34,18 @@ import java.util.*;
  */
 public class JobEdit extends Screen {
 
-
-	private JobBean jobBean = Context.get().getJobBean();
-
 	@FXML private Label idField;
 	@FXML private ComboBox<Optional<JobType>> typeField;
 	@FXML private DatePicker jobDateField;
-	@FXML private ObjectPicker<SimpleObject> driverField;
-
-	@FXML private Button editRateButton;
-	@FXML private Button removeRateButton;
-
-	@FXML private TableView<JobRateDto> rateTable;
-	@FXML private TableColumn<JobRateDto,Long> rateIdColumn;
-	@FXML private TableColumn<JobRateDto,Double> rateNetColumn;
-	@FXML private TableColumn<JobRateDto,String> rateNominalCodeColumn;
-	@FXML private TableColumn<JobRateDto,String> rateTaxCodeColumn;
-	@FXML private HBox totalPane;
+	@FXML private ObjectPicker<Driver> driverField;
+	@FXML private TextField pricingField;
+	@FXML private ObjectBrowser<JobRate> jobRateBrowser;
 
 	private Long jobId;
-	private JobDto jobDto;
-	private List<JobRateDto> jobRateDtoList;
+	private Job job = new Job();
+
+	private JobDao jobDao = Context.get().getJobDao();
+	private JobBean jobBean = Context.get().getJobBean();
 
 	public JobEdit(final Long jobId) {
 		super("/fxml/JobEdit.fxml");
@@ -75,28 +71,17 @@ public class JobEdit extends Screen {
 		));
 		typeField.getSelectionModel().select(Optional.of(JobType.REGULAR_JOB));
 
-		rateIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-		rateNetColumn.setCellValueFactory(new PropertyValueFactory<>("net"));
-		rateNominalCodeColumn.setCellValueFactory(new PropertyValueFactory<>("nominalCode"));
-		rateTaxCodeColumn.setCellValueFactory(new PropertyValueFactory<>("taxCode"));
+		ObjectBrowserHelper.setupJobRateTable(jobRateBrowser);
+		jobRateBrowser.setupDoubleClickEvent(jobRate -> handleEditRate(null));
+		jobRateBrowser.addButton("Add", ObjectBrowser.NodeType.ADD, this::handleAddRate);
+		jobRateBrowser.addButton("Edit", ObjectBrowser.NodeType.EDIT, this::handleEditRate);
+		jobRateBrowser.addButton("Remove", ObjectBrowser.NodeType.REMOVE, this::handleRemoveRate);
 
-		rateTable.getSelectionModel().selectedItemProperty().addListener(param -> {
-			final boolean isNotSelected = rateTable.getSelectionModel().isEmpty();
-			final boolean isNonSingleSelection = rateTable.getSelectionModel().getSelectedItems().size() != 1;
-			editRateButton.setDisable(isNonSingleSelection);
-			removeRateButton.setDisable(isNotSelected);
-		});
-		TableViewExtension.setupDoubleClickEvent(rateTable, this::handleJobRateChanging);
-		TableViewExtension.setupTotalSupport(rateTable, totalPane, Collections.singletonList(rateNetColumn));
 	}
 
 	private void loadData()	{
-		if(jobId == null)	{
-			jobDto = new JobDto();
-			jobRateDtoList = new ArrayList<>();
-		}else {
-			jobDto = jobBean.loadJob(jobId);
-			jobRateDtoList = jobBean.loadJobRateList(jobId);
+		if(jobId != null)	{
+			job = jobBean.loadJob(jobId);
 		}
 		PickerHelper.setupDriverPicker(driverField);
 
@@ -104,75 +89,71 @@ public class JobEdit extends Screen {
 	}
 
 	private void fillUI()	{
-		idField.setText(Utils.toString(jobDto.getId()));
-		typeField.getSelectionModel().select(Optional.ofNullable(jobDto.getType()));
-		jobDateField.setValue(jobDto.getJobDate());
-		if(jobDto.getDriverId() != null) {
-			driverField.setSelectedObject(new SimpleObject(
-					jobDto.getDriverId(),
-					jobDto.getDriverValue()
-			));
-		}
-		rateTable.getItems().setAll(jobRateDtoList);
+		idField.setText(Utils.toString(job.getId()));
+		typeField.getSelectionModel().select(job.getType() == null
+				? Optional.of(JobType.REGULAR_JOB)
+				: Optional.of(job.getType())
+		);
+		jobDateField.setValue(job.getJobDate());
+		driverField.setSelectedObject(job.getDriver());
+		pricingField.setText(Utils.toString(job.getPricing()));
+
+		fillRateList();
+	}
+
+	private void fillRateList()	{
+		jobRateBrowser.getItems().setAll(job.getJobRates());
 	}
 
 	private void fillDto()	{
-		jobDto.setJobDate(jobDateField.getValue());
-		jobDto.setType(typeField.getSelectionModel().getSelectedItem().orElse(null));
-		if(driverField.getSelectedObject() == null)	{
-			jobDto.setDriverId(null);
-		}else {
-			jobDto.setDriverId(
-					driverField
-							.getSelectedObject()
-							.map(SimpleObject::getId)
-							.orElse(null)
-			);
-		}
-		jobRateDtoList = rateTable.getItems();
+		job.setJobDate(jobDateField.getValue());
+		job.setType(typeField.getSelectionModel().getSelectedItem().orElse(null));
+		job.setDriver(driverField.getSelectedObject().orElse(null));
+		job.setPricing(Double.valueOf(pricingField.getText()));
 	}
 
 	// handlers
 
-	private void handleJobRateChanging(final JobRateDto jobRate)	{
-		new JobRateEdit(jobRate)
+	private void handleAddRate(ActionEvent event) {
+		new JobRateEdit(null)
 				.showAndWait()
-				.map(newJobRate -> {
-					rateTable.getItems().remove(jobRate);
-					rateTable.getItems().add(newJobRate);
+				.map(jobRate -> {
+					job.getJobRates().add(jobRate);
+					fillRateList();
 					return null;
 				});
 	}
 
-	@FXML
-	private void handleAddRate(ActionEvent event) {
-		handleJobRateChanging(null);
-	}
-
-	@FXML
 	private void handleEditRate(ActionEvent event) {
-		if(rateTable.getSelectionModel().isEmpty())	{
+		if(jobRateBrowser.isSelectionEmpty())	{
 			return;
 		}
-		final JobRateDto selectedJobRate = rateTable.getSelectionModel().getSelectedItem();
 
-		handleJobRateChanging(selectedJobRate);
+		final JobRate selectedJobRate = jobRateBrowser.getSelectedItem();
+		new JobRateEdit(selectedJobRate).showAndWait().map(jobRate -> {
+			fillRateList();
+			return null;
+		});
 	}
 
-	@FXML
 	private void handleRemoveRate(ActionEvent event) {
-		if(rateTable.getSelectionModel().isEmpty())	{
+		if(jobRateBrowser.isSelectionEmpty())	{
 			return;
 		}
-		final List<JobRateDto> jobRateList = rateTable.getSelectionModel().getSelectedItems();
-		jobRateList.forEach(jobRate -> rateTable.getItems().remove(jobRate));
+		final List<JobRate> jobRateList = jobRateBrowser.getSelectedItems();
+		jobRateList.forEach(jobRate -> job.getJobRates().remove(jobRate));
+		fillRateList();
 	}
 
 	@FXML
 	private void handleApply(ActionEvent event) {
 		fillDto();
-		jobBean.updateJob(jobDto, jobRateDtoList);
-		handleClose(event);
+		if(jobId == null)	{
+			jobDao.insert(job);
+		}else {
+			jobDao.update(job);
+		}
+		UIContext.get().closeScreen();
 	}
 
 	@FXML

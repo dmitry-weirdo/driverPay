@@ -1,25 +1,27 @@
 package com.magenta.echo.driverpay.ui.screen;
 
+import com.evgenltd.kwickui.controls.objectbrowser.ObjectBrowser;
 import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker;
-import com.evgenltd.kwickui.controls.objectpicker.SimpleObject;
 import com.evgenltd.kwickui.core.Screen;
 import com.evgenltd.kwickui.core.UIContext;
-import com.evgenltd.kwickui.extensions.tableview.TableViewExtension;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.JobBean;
-import com.magenta.echo.driverpay.core.entity.JobDto;
+import com.magenta.echo.driverpay.core.bean.dao.JobDao;
+import com.magenta.echo.driverpay.core.entity.Driver;
+import com.magenta.echo.driverpay.core.entity.dto.JobDto;
 import com.magenta.echo.driverpay.core.enums.JobType;
-import com.magenta.echo.driverpay.ui.PickerHelper;
 import com.magenta.echo.driverpay.ui.cellfactory.OptionalJobTypeListCell;
-import javafx.beans.property.SimpleStringProperty;
+import com.magenta.echo.driverpay.ui.util.ObjectBrowserHelper;
+import com.magenta.echo.driverpay.ui.util.PickerHelper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Project: Driver Pay
@@ -28,21 +30,14 @@ import java.util.Optional;
  */
 public class JobBrowser extends Screen {
 
-	private final JobBean jobBean = Context.get().getJobBean();
-
-
 	@FXML private DatePicker dateFrom;
 	@FXML private DatePicker dateTo;
-	@FXML private ObjectPicker<SimpleObject> driver;
+	@FXML private ObjectPicker<Driver> driver;
 	@FXML private ComboBox<Optional<JobType>> type;
-	@FXML private Button editJobButton;
+	@FXML private ObjectBrowser<JobDto> jobBrowser;
 
-	@FXML private TableView<JobDto> table;
-	@FXML private TableColumn<JobDto,Long> idColumn;
-	@FXML private TableColumn<JobDto,String> jobDateColumn;
-	@FXML private TableColumn<JobType,String> typeColumn;
-	@FXML private TableColumn<JobDto,String> driverColumn;
-	@FXML private TableColumn<JobDto,Double> totalColumn;
+	private final JobBean jobBean = Context.get().getJobBean();
+	private final JobDao jobDao = Context.get().getJobDao();
 
     public JobBrowser() {
         super("/fxml/JobBrowser.fxml");
@@ -55,7 +50,11 @@ public class JobBrowser extends Screen {
 		return "Job Browser";
 	}
 
-	// other
+	@Override
+	public void refresh() {
+		loadData();
+	}
+// other
 
 	private void initUI()	{
 		type.setButtonCell(new OptionalJobTypeListCell(true));
@@ -65,16 +64,13 @@ public class JobBrowser extends Screen {
 				Optional.of(JobType.REGULAR_JOB),
 				Optional.of(JobType.CASH_JOB)
 		));
+		type.getSelectionModel().select(Optional.empty());
 
-		TableViewExtension.setupDoubleClickEvent(table, this::handleEditJob);
-
-		idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-		jobDateColumn.setCellValueFactory(new PropertyValueFactory<>("jobDate"));
-		typeColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getLabel()));
-		driverColumn.setCellValueFactory(new PropertyValueFactory<>("driverValue"));
-		totalColumn.setCellValueFactory(new PropertyValueFactory<>("total"));
-
-		table.getSelectionModel().selectedItemProperty().addListener(param -> editJobButton.setDisable(table.getSelectionModel().isEmpty()));
+		ObjectBrowserHelper.setupJobDtoTable(jobBrowser);
+		jobBrowser.setupDoubleClickEvent(job -> handleEditJob(null));
+		jobBrowser.addButton("Add", ObjectBrowser.NodeType.ADD, this::handleAddJob);
+		jobBrowser.addButton("Edit", ObjectBrowser.NodeType.EDIT, this::handleEditJob);
+		jobBrowser.addButton("Remove", ObjectBrowser.NodeType.REMOVE, this::handleRemoveJob);
 	}
 
 	private void loadData()	{
@@ -83,10 +79,10 @@ public class JobBrowser extends Screen {
 		final List<JobDto> jobList = jobBean.loadJobList(
 				dateFrom.getValue(),
 				dateTo.getValue(),
-				driver.getSelectedObject().map(SimpleObject::getId).orElse(null),
+				driver.getSelectedObject().map(Driver::getId).orElse(null),
 				type.getSelectionModel().getSelectedItem().orElse(null)
 		);
-		table.getItems().setAll(jobList);
+		jobBrowser.getItems().setAll(jobList);
 	}
 
 	// handlers
@@ -104,27 +100,31 @@ public class JobBrowser extends Screen {
 		type.getSelectionModel().select(Optional.empty());
 	}
 
-	private void handleEditJob(final JobDto jobDto)	{
-		if(jobDto == null)	{
-			return;
-		}
-
-		UIContext.get().openScreen(new JobEdit(jobDto.getId()));
-	}
-
-	@FXML
 	private void handleAddJob(ActionEvent event) {
 		UIContext.get().openScreen(new JobEdit(null));
 	}
 
-	@FXML
 	private void handleEditJob(ActionEvent event) {
-		if(table.getSelectionModel().isEmpty())	{
+		if(jobBrowser.isSelectionEmpty())	{
 			return;
 		}
-		final JobDto jobDto = table.getSelectionModel().getSelectedItem();
+
+		final JobDto jobDto = jobBrowser.getSelectedItem();
 		UIContext.get().openScreen(new JobEdit(jobDto.getId()));
 	}
 
+	private void handleRemoveJob(ActionEvent event)	{
+		if(jobBrowser.isSelectionEmpty())	{
+			return;
+		}
+
+		final List<JobDto> jobList = jobBrowser.getSelectedItems();
+		final List<Long> jobIdList = jobList
+				.stream()
+				.map(JobDto::getId)
+				.collect(Collectors.toList());
+		jobBean.butchDelete(jobIdList);
+		loadData();
+	}
 
 }

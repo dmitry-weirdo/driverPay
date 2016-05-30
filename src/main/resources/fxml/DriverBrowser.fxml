@@ -3,7 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
-<VBox spacing="4.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.screen.DriverBrowser">
+<VBox spacing="4.0" xmlns="http://javafx.com/javafx/8.0.72" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.screen.DriverBrowser">
    <children>
       <VBox VBox.vgrow="ALWAYS">
          <children>
@@ -15,8 +15,10 @@
             </ToolBar>
             <TableView fx:id="table" VBox.vgrow="ALWAYS">
                <columns>
-                  <TableColumn fx:id="idColumn" editable="false" minWidth="-1.0" text="Id" />
+                  <TableColumn fx:id="idColumn" editable="false" minWidth="-1.0" prefWidth="30.0" text="Id" />
                   <TableColumn fx:id="nameColumn" editable="false" minWidth="-1.0" text="Name" />
+                  <TableColumn fx:id="calculatedSalaryColumn" editable="false" minWidth="-1.0" prefWidth="120.0" text="Calculated Salary" />
+                  <TableColumn fx:id="currentDepositColumn" editable="false" minWidth="-1.0" prefWidth="120.0" text="Current Deosit" />
                </columns>
             </TableView>
          </children>

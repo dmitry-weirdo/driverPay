@@ -1,77 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker?>
-<?import javafx.geometry.Insets?>
+<?import com.evgenltd.kwickui.controls.objectbrowser.ObjectBrowser?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<VBox spacing="4.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.screen.PaymentReasonEdit">
+<VBox spacing="4.0" xmlns="http://javafx.com/javafx/8.0.72" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.dialog.PaymentReasonEdit">
    <children>
-      <Label text="PAYMENT REASON EDIT" VBox.vgrow="NEVER">
-         <font>
-            <Font size="18.0" />
-         </font>
-      </Label>
-      <GridPane hgap="4.0" vgap="4.0" VBox.vgrow="NEVER">
+      <HBox fx:id="toggleButtonPane" VBox.vgrow="NEVER">
          <children>
-            <Label text="Id" />
-            <Label fx:id="idField" text="&lt;id&gt;" GridPane.columnIndex="1" />
-            <Label text="Driver" GridPane.rowIndex="2" />
-            <TextField fx:id="nameField" prefWidth="150.0" promptText="Name" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <Label text="Type" GridPane.rowIndex="1" />
-            <ComboBox fx:id="typeField" prefWidth="150.0" promptText="Payment Type" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label text="Name" GridPane.rowIndex="3" />
-            <ObjectPicker fx:id="driverField" prefWidth="150.0" promptText="Driver" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <ToggleButton fx:id="toggleButtonGeneral" mnemonicParsing="false" text="General" />
+            <ToggleButton fx:id="toggleButtonPayments" mnemonicParsing="false" text="Payments" />
          </children>
-         <columnConstraints>
-            <ColumnConstraints hgrow="NEVER" />
-            <ColumnConstraints hgrow="NEVER" />
-         </columnConstraints>
-         <rowConstraints>
-            <RowConstraints vgrow="NEVER" />
-            <RowConstraints vgrow="NEVER" />
-            <RowConstraints vgrow="NEVER" />
-            <RowConstraints vgrow="NEVER" />
-         </rowConstraints>
-      </GridPane>
-      <VBox VBox.vgrow="ALWAYS">
+      </HBox>
+      <StackPane VBox.vgrow="ALWAYS">
          <children>
-            <ToolBar VBox.vgrow="NEVER">
-               <items>
-                  <Button mnemonicParsing="false" onAction="#handleAddPayment" text="Add" />
-                  <Button fx:id="editPaymentButton" disable="true" mnemonicParsing="false" onAction="#handleEditPayment" text="Edit" />
-                  <Button fx:id="removePaymentButton" disable="true" mnemonicParsing="false" onAction="#handleRemovePayment" text="Remove" />
-                  <Separator orientation="VERTICAL" />
-                  <Button mnemonicParsing="false" onAction="#handleGeneratePaymentsByTemplate" text="Generate..." />
-               </items>
-            </ToolBar>
-            <TableView fx:id="paymentTable" VBox.vgrow="ALWAYS">
-               <columns>
-                  <TableColumn fx:id="paymentIdColumn" editable="false" prefWidth="75.0" text="Id" />
-                  <TableColumn fx:id="paymentPlannedDateColumn" editable="false" prefWidth="75.0" text="Planned Date" />
-                  <TableColumn fx:id="paymentNetColumn" editable="false" prefWidth="75.0" text="Net" />
-                  <TableColumn fx:id="paymentVatColumn" editable="false" prefWidth="75.0" text="Vat" />
-                  <TableColumn fx:id="paymentTotalColumn" editable="false" prefWidth="75.0" text="Total" />
-                  <TableColumn fx:id="paymentNominalCodeColumn" editable="false" prefWidth="75.0" text="Nominal Code" />
-                  <TableColumn fx:id="paymentTaxCodeColumn" editable="false" prefWidth="75.0" text="Tax Code" />
-                  <TableColumn fx:id="statusColumn" editable="false" prefWidth="75.0" text="Status" />
-               </columns>
-            </TableView>
-            <HBox fx:id="totalsPane" alignment="CENTER_LEFT" VBox.vgrow="NEVER" />
-         </children>
-      </VBox>
-      <BorderPane VBox.vgrow="NEVER">
-         <right>
-            <HBox spacing="4.0" BorderPane.alignment="CENTER">
+            <HBox fx:id="generalPane" spacing="4.0">
                <children>
-                  <Button defaultButton="true" mnemonicParsing="false" onAction="#handleApply" text="Apply" />
-                  <Button cancelButton="true" mnemonicParsing="false" onAction="#handleClose" text="Close" />
+                  <GridPane hgap="4.0" vgap="4.0" HBox.hgrow="NEVER">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="NEVER" />
+                      <ColumnConstraints hgrow="NEVER" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints vgrow="NEVER" />
+                      <RowConstraints vgrow="NEVER" />
+                        <RowConstraints vgrow="NEVER" />
+                        <RowConstraints vgrow="NEVER" />
+                    </rowConstraints>
+                     <children>
+                        <Label text="Name" />
+                        <Label text="Payment Type" GridPane.rowIndex="1" />
+                        <TextField fx:id="name" prefWidth="150.0" GridPane.columnIndex="1" />
+                        <ComboBox fx:id="paymentType" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label text="Nominal Code" GridPane.rowIndex="2" />
+                        <Label text="Tax Code" GridPane.rowIndex="3" />
+                        <TextField fx:id="nominalCode" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <TextField fx:id="taxCode" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                     </children>
+                  </GridPane>
+                  <VBox fx:id="schedulePane" spacing="4.0" HBox.hgrow="NEVER">
+                     <children>
+                        <ComboBox fx:id="scheduleType" prefWidth="100.0" VBox.vgrow="NEVER" />
+                        <HBox fx:id="amountsPane" spacing="4.0" VBox.vgrow="NEVER">
+                           <children>
+                              <GridPane fx:id="nvtPane" hgap="4.0" vgap="4.0" HBox.hgrow="NEVER">
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="NEVER" prefWidth="30.0" />
+                                  <ColumnConstraints hgrow="NEVER" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints vgrow="NEVER" />
+                                  <RowConstraints vgrow="NEVER" />
+                                  <RowConstraints vgrow="NEVER" />
+                                </rowConstraints>
+                                 <children>
+                                    <Label text="Net" />
+                                    <TextField fx:id="net" prefWidth="70.0" GridPane.columnIndex="1" />
+                                    <Label text="VAT" GridPane.rowIndex="1" />
+                                    <TextField fx:id="vat" prefWidth="70.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <Label text="Total" GridPane.rowIndex="2" />
+                                    <TextField fx:id="total" prefWidth="70.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                 </children>
+                              </GridPane>
+                              <GridPane fx:id="incrementalPane" hgap="4.0" vgap="4.0">
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="NEVER" />
+                                  <ColumnConstraints hgrow="NEVER" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints vgrow="NEVER" />
+                                  <RowConstraints vgrow="NEVER" />
+                                </rowConstraints>
+                                 <children>
+                                    <Label text="Opening" />
+                                    <TextField fx:id="opening" prefWidth="70.0" GridPane.columnIndex="1" />
+                                    <Label text="Gross" GridPane.rowIndex="1" />
+                                    <TextField fx:id="gross" prefWidth="70.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                 </children>
+                              </GridPane>
+                           </children>
+                        </HBox>
+                        <HBox fx:id="everyPane" alignment="CENTER_LEFT" spacing="4.0" VBox.vgrow="NEVER">
+                           <children>
+                              <Label prefWidth="30.0" text="Every" />
+                              <TextField fx:id="frequencyValue" prefWidth="30.0" />
+                              <ComboBox fx:id="frequencyType" prefWidth="70.0" />
+                           </children>
+                        </HBox>
+                        <HBox fx:id="repeatPane" alignment="CENTER_LEFT" spacing="4.0" VBox.vgrow="NEVER">
+                           <children>
+                              <Label prefWidth="30.0" text="Up to" HBox.hgrow="NEVER" />
+                              <DatePicker fx:id="endDate" prefWidth="100.0" HBox.hgrow="NEVER" />
+                              <CheckBox fx:id="endless" mnemonicParsing="false" text="Endless" HBox.hgrow="NEVER" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
                </children>
             </HBox>
-         </right>
-      </BorderPane>
+            <VBox fx:id="paymentsPane" visible="false">
+               <children>
+                  <ObjectBrowser fx:id="paymentBrowser" prefHeight="250.0" VBox.vgrow="ALWAYS" />
+               </children></VBox>
+         </children>
+      </StackPane>
    </children>
-   <padding>
-      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-   </padding>
 </VBox>

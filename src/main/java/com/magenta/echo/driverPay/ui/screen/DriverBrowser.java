@@ -1,16 +1,21 @@
 package com.magenta.echo.driverpay.ui.screen;
 
 import com.evgenltd.kwickui.core.Screen;
+import com.evgenltd.kwickui.core.UIContext;
+import com.evgenltd.kwickui.extensions.tableview.TableViewExtension;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.DriverBean;
-import com.magenta.echo.driverpay.core.entity.DriverDto;
-import com.magenta.echo.driverpay.ui.dialog.DriverEdit;
+import com.magenta.echo.driverpay.core.entity.dto.DriverDto;
+import com.magenta.echo.driverpay.ui.screen.driverEdit.DriverEdit;
+import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+
+import java.util.List;
 
 /**
  * Project: Driver Pay
@@ -19,12 +24,15 @@ import javafx.scene.control.cell.PropertyValueFactory;
  */
 public class DriverBrowser extends Screen {
 
-    private DriverBean driverBean = Context.get().getDriverBean();
+	private DriverBean driverBean = Context.get().getDriverBean();
 
     @FXML private Button editDriverButton;
+
     @FXML private TableView<DriverDto> table;
     @FXML private TableColumn<DriverDto,Long> idColumn;
     @FXML private TableColumn<DriverDto,String> nameColumn;
+	@FXML private TableColumn<DriverDto,Double> calculatedSalaryColumn;
+	@FXML private TableColumn<DriverDto,Double> currentDepositColumn;
 
     public DriverBrowser() {
         super("/fxml/DriverBrowser.fxml");
@@ -37,25 +45,34 @@ public class DriverBrowser extends Screen {
         return "Driver browser";
     }
 
-    // other
+	@Override
+	public void refresh() {
+		loadData();
+	}
+
+	// other
 
     private void initUI()   {
 
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+		calculatedSalaryColumn.setCellValueFactory(new PropertyValueFactory<>("calculatedSalary"));
+		currentDepositColumn.setCellValueFactory(new PropertyValueFactory<>("currentDeposit"));
 
-        table.getSelectionModel().selectedItemProperty().addListener(param -> editDriverButton.setDisable(table.getSelectionModel().isEmpty()));
+        table.getSelectionModel().selectedItemProperty().addListener(this::handleTableSelectedItemChanged);
+        TableViewExtension.setupDoubleClickEvent(table, param -> handleEditDriver(null));
     }
 
     private void loadData() {
-        table.getItems().setAll(driverBean.loadDriverList());
+		final List<DriverDto> driverList = driverBean.loadDriverList();
+		table.getItems().setAll(driverList);
     }
 
     // handlers
 
     @FXML
     private void handleAddDriver(ActionEvent actionEvent) {
-        new DriverEdit(null).showAndWait();
+		UIContext.get().openScreen(new DriverEdit(null));
 		loadData();
     }
 
@@ -65,7 +82,11 @@ public class DriverBrowser extends Screen {
             return;
         }
         final Long selectedDriverId = table.getSelectionModel().getSelectedItem().getId();
-        new DriverEdit(selectedDriverId).showAndWait();
-		loadData();
+		UIContext.get().openScreen(new DriverEdit(selectedDriverId));
     }
+
+	private void handleTableSelectedItemChanged(Observable observable) {
+		final boolean isSelectionEmpty = table.getSelectionModel().isEmpty();
+		editDriverButton.setDisable(isSelectionEmpty);
+	}
 }

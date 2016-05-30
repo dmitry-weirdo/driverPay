@@ -11,11 +11,12 @@ import com.magenta.echo.driverpay.core.enums.PaymentType;
 public class PaymentTypeToTransactionRules {
 	public static BalanceType getFromBalanceType(final PaymentType paymentType)	{
 		switch(paymentType)	{
+			case CASH_JOB:
 			case REGULAR_JOB:
 			case CREDIT:
 			case REFILL_DEPOSIT:
+			case CASH_PAYMENT:
 				return BalanceType.COMPANY;
-			case CASH_JOB:
 			case DEDUCTION:
 			case DEPOSIT:
 				return BalanceType.DRIVER;
@@ -29,13 +30,14 @@ public class PaymentTypeToTransactionRules {
 
 	public static BalanceType getToBalanceType(final PaymentType paymentType)	{
 		switch(paymentType)	{
-			case CASH_JOB:
 			case DEDUCTION:
 			case TAKE_DEPOSIT:
 				return BalanceType.COMPANY;
 			case REGULAR_JOB:
+			case CASH_JOB:
 			case CREDIT:
 			case RELEASE_DEPOSIT:
+			case CASH_PAYMENT:
 				return BalanceType.DRIVER;
 			case REFILL_DEPOSIT:
 			case DEPOSIT:

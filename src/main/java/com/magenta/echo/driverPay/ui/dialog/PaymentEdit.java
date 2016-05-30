@@ -2,26 +2,35 @@ package com.magenta.echo.driverpay.ui.dialog;
 
 import com.evgenltd.kwickui.core.DialogScreen;
 import com.magenta.echo.driverpay.core.Context;
-import com.magenta.echo.driverpay.core.bean.PaymentBean;
-import com.magenta.echo.driverpay.core.entity.PaymentDto;
-import com.magenta.echo.driverpay.ui.Utils;
+import com.magenta.echo.driverpay.core.bean.BalanceBean;
+import com.magenta.echo.driverpay.core.bean.dao.PaymentDao;
+import com.magenta.echo.driverpay.core.bean.dao.PaymentReasonDao;
+import com.magenta.echo.driverpay.core.entity.Balance;
+import com.magenta.echo.driverpay.core.entity.Driver;
+import com.magenta.echo.driverpay.core.entity.Payment;
+import com.magenta.echo.driverpay.core.entity.PaymentReason;
+import com.magenta.echo.driverpay.core.enums.PaymentType;
+import com.magenta.echo.driverpay.core.rule.PaymentAllowedToEdit;
+import com.magenta.echo.driverpay.ui.cellfactory.PaymentTypeListCell;
+import com.magenta.echo.driverpay.ui.util.Utils;
 import javafx.fxml.FXML;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
 
 /**
- * Project: Driver Pay
+ * Project: driverPay-prototype
  * Author:  Evgeniy
- * Created: 14-05-2016 02:37
+ * Created: 29-05-2016 22:03
  */
-public class PaymentEdit extends DialogScreen<PaymentDto> {
+public class PaymentEdit extends DialogScreen<Void> {
 
-	private PaymentBean paymentBean = Context.get().getPaymentBean();
-
-	@FXML private Label id;
-	@FXML private Label type;
+	@FXML private GridPane mainPane;
+	@FXML private TextField name;
+	@FXML private Label typeLabel;
+	@FXML private ComboBox<PaymentType> type;
 	@FXML private Label status;
 	@FXML private DatePicker plannedDate;
 	@FXML private TextField net;
@@ -30,63 +39,168 @@ public class PaymentEdit extends DialogScreen<PaymentDto> {
 	@FXML private TextField nominalCode;
 	@FXML private TextField taxCode;
 
-	private PaymentDto paymentDto;
+	private Long driverId;
+	private Long paymentReasonId;
+	private Long paymentId;
+	private PaymentType paymentType;
+	private boolean restrictPaymentTypeChanging;
+	private Payment payment = new Payment();
+	private PaymentReason paymentReason = new PaymentReason();
 
-	public PaymentEdit(final PaymentDto paymentDto) {
+	private PaymentDao paymentDao = Context.get().getPaymentDao();
+	private PaymentReasonDao paymentReasonDao = Context.get().getPaymentReasonDao();
+	private BalanceBean balanceBean = Context.get().getBalanceBean();
+
+	public PaymentEdit(
+			@NotNull final Long driverId,
+			final Long paymentReasonId,
+			final Long paymentId,
+			final PaymentType paymentType,
+			final boolean restrictPaymentTypeChanging
+	) {
 		super("/fxml/PaymentEdit.fxml");
-		this.paymentDto = paymentDto;
+		this.driverId = driverId;
+		this.paymentReasonId = paymentReasonId;
+		this.paymentId = paymentId;
+		this.paymentType = paymentType;
+		this.restrictPaymentTypeChanging = restrictPaymentTypeChanging;
 		initUI();
 		loadData();
 	}
 
 	@Override
 	protected String getTitle() {
-		return "Payment Edit";
+		return "Edit Payment";
 	}
 
-	// other
+	private boolean isNew()	{
+		return paymentId == null;
+	}
+
+	private boolean isPaymentReasonSpecified()	{
+		return paymentReasonId != null;
+	}
+
+	private boolean isPaymentTypeSpecified()	{
+		return paymentType != null;
+	}
+
+	// ##############################################################
+	// #                                                            #
+	// #                   Initializations                          #
+	// #                                                            #
+	// ##############################################################
 
 	private void initUI()	{
+		type.setButtonCell(new PaymentTypeListCell());
+		type.setCellFactory(param -> new PaymentTypeListCell());
+		type.getItems().setAll(Arrays.asList(
+				PaymentType.CREDIT,
+				PaymentType.DEDUCTION,
+				PaymentType.DEPOSIT
+		));
+
 		getDialog().setTitle("Edit Payment");
 		getDialog().getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 	}
 
+	private void fillUI()	{
+		status.setText(payment.getStatus() == null ? "" : payment.getStatus().getLabel());
+		plannedDate.setValue(payment.getPlannedDate());
+
+		if(isNew() && isPaymentReasonSpecified()) {
+			name.setText(Utils.toString(paymentReason.getName()));
+			type.getSelectionModel().select(paymentReason.getPaymentType());
+			net.setText(Utils.toString(paymentReason.getNet()));
+			vat.setText(Utils.toString(paymentReason.getVat()));
+			total.setText(Utils.toString(paymentReason.getTotal()));
+			nominalCode.setText(Utils.toString(paymentReason.getNominalCode()));
+			taxCode.setText(Utils.toString(paymentReason.getTaxCode()));
+		}else {
+			name.setText(Utils.toString(payment.getName()));
+			type.getSelectionModel().select(payment.getType());
+			net.setText(Utils.toString(payment.getNet()));
+			vat.setText(Utils.toString(payment.getVat()));
+			total.setText(Utils.toString(payment.getTotal()));
+			nominalCode.setText(Utils.toString(payment.getNominalCode()));
+			taxCode.setText(Utils.toString(payment.getTaxCode()));
+		}
+
+		if(isNew() && isPaymentTypeSpecified())	{
+			type.getSelectionModel().select(paymentType);
+		}
+
+		if(restrictPaymentTypeChanging)	{
+			mainPane.getChildren().remove(typeLabel);
+			mainPane.getChildren().remove(type);
+		}
+	}
+
+	// ##############################################################
+	// #                                                            #
+	// #                       Load data                            #
+	// #                                                            #
+	// ##############################################################
+
 	private void loadData()	{
-		if(paymentDto == null)	{
-			paymentDto = new PaymentDto();
+		if(!isNew())	{
+			payment = paymentDao.find(paymentId);
+			if(PaymentAllowedToEdit.isNotAllowed(payment.getType()))	{
+				restrictPaymentTypeChanging = true;
+			}
+		}
+		if(isPaymentReasonSpecified())	{
+			paymentReason = paymentReasonDao.find(paymentReasonId);
+			payment.setPaymentReason(paymentReason);
 		}
 		fillUI();
 	}
 
-	private void fillUI()	{
-		id.setText(Utils.toString(paymentDto.getId()));
-		type.setText(paymentDto.getType() == null ? "" : paymentDto.getType().getLabel());
-		status.setText(paymentDto.getStatus() == null ? "" : paymentDto.getStatus().getLabel());
-		plannedDate.setValue(paymentDto.getPlannedDate());
-		net.setText(Utils.toString(paymentDto.getNet()));
-		vat.setText(Utils.toString(paymentDto.getVat()));
-		total.setText(Utils.toString(paymentDto.getTotal()));
-		nominalCode.setText(Utils.toString(paymentDto.getNominalCode()));
-		taxCode.setText(Utils.toString(paymentDto.getTaxCode()));
+	// ##############################################################
+	// #                                                            #
+	// #                     Persist data                           #
+	// #                                                            #
+	// ##############################################################
+
+	private void fillPayment()	{
+		final Driver driver = new Driver();
+		driver.setId(driverId);
+
+		if(isNew() && isPaymentTypeSpecified())	{
+			fillPaymentType(driver, paymentType);
+		}else if(!restrictPaymentTypeChanging)	{
+			fillPaymentType(driver, this.type.getSelectionModel().getSelectedItem());
+		}
+
+		payment.setDriver(driver);
+		payment.setName(name.getText());
+		payment.setPlannedDate(plannedDate.getValue());
+		payment.setNet(Double.parseDouble(net.getText()));
+		payment.setVat(Double.parseDouble(vat.getText()));
+		payment.setTotal(Double.parseDouble(total.getText()));
+		payment.setNominalCode(nominalCode.getText());
+		payment.setTaxCode(taxCode.getText());
+
 	}
 
-	private void fillDto()	{
-		paymentDto.setPlannedDate(plannedDate.getValue());
-		paymentDto.setNet(Double.parseDouble(net.getText()));
-		paymentDto.setVat(Double.parseDouble(vat.getText()));
-		paymentDto.setTotal(Double.parseDouble(total.getText()));
-		paymentDto.setNominalCode(nominalCode.getText());
-		paymentDto.setTaxCode(taxCode.getText());
+	private void fillPaymentType(@NotNull final Driver driver, @NotNull final PaymentType paymentType)	{
+		final Balance from = balanceBean.getBalanceFrom(driver,paymentType);
+		final Balance to = balanceBean.getBalanceTo(driver,paymentType);
 
+		payment.setType(paymentType);
+		payment.setFrom(from);
+		payment.setTo(to);
 	}
-
-	// handlers
 
 	@Override
-	protected PaymentDto resultConverter(ButtonType buttonType) {
+	protected Void resultConverter(ButtonType buttonType) {
 		if(ButtonType.OK.equals(buttonType))	{
-			fillDto();
-			return paymentDto;
+			fillPayment();
+			if(paymentId == null)	{
+				paymentDao.insert(payment);
+			}else {
+				paymentDao.update(payment);
+			}
 		}
 		return null;
 	}

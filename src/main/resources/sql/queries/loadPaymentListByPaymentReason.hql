@@ -1,0 +1,1 @@
+select p from Payment p where p.paymentReason.id = :paymentReasonId

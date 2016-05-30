@@ -1,8 +1,8 @@
 package com.magenta.echo.driverpay.ui.dialog;
 
 import com.evgenltd.kwickui.core.DialogScreen;
-import com.magenta.echo.driverpay.core.entity.JobRateDto;
-import com.magenta.echo.driverpay.ui.Utils;
+import com.magenta.echo.driverpay.core.entity.JobRate;
+import com.magenta.echo.driverpay.ui.util.Utils;
 import javafx.fxml.FXML;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
@@ -13,19 +13,19 @@ import javafx.scene.control.TextField;
  * Author:  Evgeniy
  * Created: 13-05-2016 01:56
  */
-public class JobRateEdit extends DialogScreen<JobRateDto> {
+public class JobRateEdit extends DialogScreen<JobRate> {
 
 	@FXML private Label id;
 	@FXML private TextField net;
 	@FXML private TextField nominalCode;
 	@FXML private TextField taxCode;
 
-	private JobRateDto jobRateDto;
+	private JobRate jobRate;
 
-	public JobRateEdit(final JobRateDto jobRateDto) {
+	public JobRateEdit(final JobRate jobRate) {
 		super("/fxml/JobRateEdit.fxml");
 
-		this.jobRateDto = jobRateDto == null ? new JobRateDto() : jobRateDto;
+		this.jobRate = jobRate == null ? new JobRate() : jobRate;
 
 		initUI();
 		fillUI();
@@ -45,25 +45,25 @@ public class JobRateEdit extends DialogScreen<JobRateDto> {
 	}
 
 	@Override
-	protected JobRateDto resultConverter(final ButtonType buttonType)	{
+	protected JobRate resultConverter(final ButtonType buttonType)	{
 		if(ButtonType.OK.equals(buttonType))	{
 			fillDto();
-			return jobRateDto;
+			return jobRate;
 		}else {
 			return null;
 		}
 	}
 
 	private void fillUI()	{
-		id.setText(Utils.toString(jobRateDto.getId()));
-		net.setText(Utils.toString(jobRateDto.getNet()));
-		nominalCode.setText(jobRateDto.getNominalCode());
-		taxCode.setText(jobRateDto.getTaxCode());
+		id.setText(Utils.toString(jobRate.getId()));
+		net.setText(Utils.toString(jobRate.getNet()));
+		nominalCode.setText(jobRate.getNominalCode());
+		taxCode.setText(jobRate.getTaxCode());
 	}
 
 	private void fillDto()	{
-		jobRateDto.setNet(Double.parseDouble(net.getText()));
-		jobRateDto.setNominalCode(nominalCode.getText());
-		jobRateDto.setTaxCode(taxCode.getText());
+		jobRate.setNet(Double.parseDouble(net.getText()));
+		jobRate.setNominalCode(nominalCode.getText());
+		jobRate.setTaxCode(taxCode.getText());
 	}
 }

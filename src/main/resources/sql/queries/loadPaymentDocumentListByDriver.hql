@@ -1,0 +1,1 @@
+select pd from PaymentDocument pd where pd.driver.id = :driverId

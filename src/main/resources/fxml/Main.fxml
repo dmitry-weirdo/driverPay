@@ -2,33 +2,22 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<HBox alignment="CENTER" spacing="4.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.screen.Main">
+<VBox alignment="CENTER" fillWidth="false" prefWidth="400.0" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.72" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.screen.Main">
    <children>
-      <VBox alignment="CENTER_LEFT" fillWidth="false" spacing="4.0">
+      <Button mnemonicParsing="false" onAction="#handleOpenJobs" prefHeight="60.0" prefWidth="120.0" text="Jobs" />
+      <Separator prefWidth="300.0" />
+      <Button mnemonicParsing="false" onAction="#handleOpenDrivers" prefHeight="80.0" prefWidth="160.0" text="Drivers" />
+      <Separator prefWidth="300.0" />
+      <HBox alignment="CENTER" spacing="10.0">
+         <padding>
+            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+         </padding>
          <children>
-            <Button mnemonicParsing="false" onAction="#handleDriversOpen" prefHeight="80.0" prefWidth="160.0" text="Drivers" />
-            <Button mnemonicParsing="false" onAction="#handleJobsOpen" prefHeight="80.0" prefWidth="160.0" text="Jobs" />
-            <Button mnemonicParsing="false" onAction="#handleChargeBasesOpen" prefHeight="80.0" prefWidth="160.0" text="Payment Reasons" />
+            <Button mnemonicParsing="false" onAction="#handleGlobalSalaryCalculation" prefHeight="60.0" prefWidth="120.0" text="Global Salary Calculation&#10;(not work)" textAlignment="CENTER" wrapText="true" />
+            <Button mnemonicParsing="false" onAction="#handleGlobalProcessing" prefHeight="60.0" prefWidth="120.0" text="Global Processing (not work)" textAlignment="CENTER" wrapText="true" />
          </children>
-      </VBox>
-      <ImageView pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@../image/arrow.png" />
-         </image>
-      </ImageView>
-      <Button mnemonicParsing="false" onAction="#handleSalaryCalculationOpen" prefHeight="80.0" prefWidth="160.0" text="Salary Calculation" />
-      <ImageView pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@../image/arrow.png" />
-         </image>
-      </ImageView>
-      <Button mnemonicParsing="false" onAction="#handlePaymentsOpen" prefHeight="80.0" prefWidth="160.0" text="Process Payments" />
+      </HBox>
    </children>
-   <padding>
-      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-   </padding>
-</HBox>
+</VBox>

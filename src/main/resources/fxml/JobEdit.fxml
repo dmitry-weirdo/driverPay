@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.evgenltd.kwickui.controls.objectbrowser.ObjectBrowser?>
 <?import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox spacing="4.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.screen.JobEdit">
+<VBox spacing="4.0" xmlns="http://javafx.com/javafx/8.0.72" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.screen.JobEdit">
    <children>
       <Label text="JOB EDIT">
          <font>
@@ -22,6 +23,7 @@
             <RowConstraints vgrow="NEVER" />
             <RowConstraints vgrow="NEVER" />
             <RowConstraints vgrow="NEVER" />
+            <RowConstraints vgrow="NEVER" />
         </rowConstraints>
          <children>
             <Label text="Id" />
@@ -32,28 +34,11 @@
             <ObjectPicker fx:id="driverField" prefWidth="150.0" promptText="Driver" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <Label text="Type" GridPane.rowIndex="1" />
             <ComboBox fx:id="typeField" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label text="Pricing" GridPane.rowIndex="4" />
+            <TextField fx:id="pricingField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
          </children>
       </GridPane>
-      <VBox VBox.vgrow="ALWAYS">
-         <children>
-            <ToolBar>
-              <items>
-                <Button mnemonicParsing="false" onAction="#handleAddRate" text="Add" />
-                  <Button fx:id="editRateButton" disable="true" mnemonicParsing="false" onAction="#handleEditRate" text="Edit" />
-                  <Button fx:id="removeRateButton" disable="true" mnemonicParsing="false" onAction="#handleRemoveRate" text="Remove" />
-              </items>
-            </ToolBar>
-            <TableView fx:id="rateTable" VBox.vgrow="ALWAYS">
-              <columns>
-                <TableColumn fx:id="rateIdColumn" editable="false" prefWidth="75.0" text="Id" />
-                <TableColumn fx:id="rateNetColumn" editable="false" prefWidth="75.0" text="Net" />
-                  <TableColumn fx:id="rateNominalCodeColumn" editable="false" prefWidth="75.0" text="Nominal Code" />
-                  <TableColumn fx:id="rateTaxCodeColumn" editable="false" prefWidth="75.0" text="Tax Code" />
-              </columns>
-            </TableView>
-            <HBox fx:id="totalPane" />
-         </children>
-      </VBox>
+      <ObjectBrowser fx:id="jobRateBrowser" />
       <BorderPane>
          <right>
             <HBox spacing="4.0" BorderPane.alignment="CENTER">
