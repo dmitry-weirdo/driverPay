@@ -1,6 +1,6 @@
 package com.magenta.echo.driverpay.ui.dialog;
 
-import com.evgenltd.kwickui.core.DialogScreen;
+import com.evgenltd.kwick.ui.DialogScreen;
 import com.magenta.echo.driverpay.core.entity.JobRate;
 import com.magenta.echo.driverpay.ui.util.Utils;
 import javafx.fxml.FXML;

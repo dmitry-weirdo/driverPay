@@ -1,10 +1,9 @@
 package com.magenta.echo.driverpay.ui.dialog;
 
-import com.evgenltd.kwickui.core.DialogScreen;
+import com.evgenltd.kwick.ui.DialogScreen;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.BalanceBean;
-import com.magenta.echo.driverpay.core.bean.dao.PaymentDao;
-import com.magenta.echo.driverpay.core.bean.dao.PaymentReasonDao;
+import com.magenta.echo.driverpay.core.bean.dao.CommonDao;
 import com.magenta.echo.driverpay.core.entity.Balance;
 import com.magenta.echo.driverpay.core.entity.Driver;
 import com.magenta.echo.driverpay.core.entity.Payment;
@@ -18,6 +17,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 
 /**
@@ -47,8 +47,7 @@ public class PaymentEdit extends DialogScreen<Void> {
 	private Payment payment = new Payment();
 	private PaymentReason paymentReason = new PaymentReason();
 
-	private PaymentDao paymentDao = Context.get().getPaymentDao();
-	private PaymentReasonDao paymentReasonDao = Context.get().getPaymentReasonDao();
+	private CommonDao commonDao = Context.get().getCommonDao();
 	private BalanceBean balanceBean = Context.get().getBalanceBean();
 
 	public PaymentEdit(
@@ -106,9 +105,9 @@ public class PaymentEdit extends DialogScreen<Void> {
 
 	private void fillUI()	{
 		status.setText(payment.getStatus() == null ? "" : payment.getStatus().getLabel());
-		plannedDate.setValue(payment.getPlannedDate());
 
 		if(isNew() && isPaymentReasonSpecified()) {
+			plannedDate.setValue(LocalDate.now());
 			name.setText(Utils.toString(paymentReason.getName()));
 			type.getSelectionModel().select(paymentReason.getPaymentType());
 			net.setText(Utils.toString(paymentReason.getNet()));
@@ -116,7 +115,12 @@ public class PaymentEdit extends DialogScreen<Void> {
 			total.setText(Utils.toString(paymentReason.getTotal()));
 			nominalCode.setText(Utils.toString(paymentReason.getNominalCode()));
 			taxCode.setText(Utils.toString(paymentReason.getTaxCode()));
+		}else if(isNew() && isPaymentTypeSpecified()) {
+			plannedDate.setValue(LocalDate.now());
+			name.setText(paymentType.getLabel());
+			type.getSelectionModel().select(paymentType);
 		}else {
+			plannedDate.setValue(payment.getPlannedDate());
 			name.setText(Utils.toString(payment.getName()));
 			type.getSelectionModel().select(payment.getType());
 			net.setText(Utils.toString(payment.getNet()));
@@ -124,10 +128,6 @@ public class PaymentEdit extends DialogScreen<Void> {
 			total.setText(Utils.toString(payment.getTotal()));
 			nominalCode.setText(Utils.toString(payment.getNominalCode()));
 			taxCode.setText(Utils.toString(payment.getTaxCode()));
-		}
-
-		if(isNew() && isPaymentTypeSpecified())	{
-			type.getSelectionModel().select(paymentType);
 		}
 
 		if(restrictPaymentTypeChanging)	{
@@ -144,13 +144,13 @@ public class PaymentEdit extends DialogScreen<Void> {
 
 	private void loadData()	{
 		if(!isNew())	{
-			payment = paymentDao.find(paymentId);
+			payment = commonDao.find(Payment.class, paymentId);
 			if(PaymentAllowedToEdit.isNotAllowed(payment.getType()))	{
 				restrictPaymentTypeChanging = true;
 			}
 		}
 		if(isPaymentReasonSpecified())	{
-			paymentReason = paymentReasonDao.find(paymentReasonId);
+			paymentReason = commonDao.find(PaymentReason.class, paymentReasonId);
 			payment.setPaymentReason(paymentReason);
 		}
 		fillUI();
@@ -197,9 +197,9 @@ public class PaymentEdit extends DialogScreen<Void> {
 		if(ButtonType.OK.equals(buttonType))	{
 			fillPayment();
 			if(paymentId == null)	{
-				paymentDao.insert(payment);
+				commonDao.insert(payment);
 			}else {
-				paymentDao.update(payment);
+				commonDao.update(payment);
 			}
 		}
 		return null;

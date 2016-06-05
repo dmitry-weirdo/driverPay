@@ -4,7 +4,7 @@ import com.magenta.echo.driverpay.core.entity.Balance;
 import com.magenta.echo.driverpay.core.entity.Driver;
 import com.magenta.echo.driverpay.core.enums.BalanceType;
 import com.magenta.echo.driverpay.core.enums.PaymentType;
-import com.magenta.echo.driverpay.core.rule.PaymentTypeToTransactionRules;
+import com.magenta.echo.driverpay.core.rule.PaymentTypeToTransaction;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,18 +49,22 @@ public class BalanceBean extends AbstractBean {
 		driver = getEntityManager().find(Driver.class,driver.getId());
 
 		switch(balanceType) {
-			case COMPANY:
-				return getEntityManager()
-						.createQuery("select b from Balance b where b.type = :type", Balance.class)
-						.setParameter("type", BalanceType.COMPANY)
-						.getSingleResult();
 			case DRIVER:
 				return driver.getDriverBalance();
 			case DEPOSIT:
 				return driver.getDepositBalance();
+			case COMPANY:
+				return getCompanyBalance();
 			default:
-				throw new IllegalArgumentException(String.format("Unknown balance type, '%s'", balanceType));
+				throw new IllegalArgumentException(String.format("Illegal balance type, '%s'", balanceType));
 		}
+	}
+
+	public Balance getCompanyBalance()	{
+		return getEntityManager()
+				.createQuery("select b from Balance b where b.type = :type", Balance.class)
+				.setParameter("type", BalanceType.COMPANY)
+				.getSingleResult();
 	}
 
 	@Deprecated
@@ -95,7 +99,7 @@ public class BalanceBean extends AbstractBean {
 			@NotNull final PaymentType paymentType
 	)  {
 
-		final BalanceType balanceType = PaymentTypeToTransactionRules.getFromBalanceType(paymentType);
+		final BalanceType balanceType = PaymentTypeToTransaction.getFromBalanceType(paymentType);
 
 		return getBalance(driver, balanceType);
 
@@ -106,7 +110,7 @@ public class BalanceBean extends AbstractBean {
 			@NotNull final PaymentType paymentType
 	)  {
 
-		final BalanceType balanceType = PaymentTypeToTransactionRules.getToBalanceType(paymentType);
+		final BalanceType balanceType = PaymentTypeToTransaction.getToBalanceType(paymentType);
 
 		return getBalance(driver, balanceType);
 

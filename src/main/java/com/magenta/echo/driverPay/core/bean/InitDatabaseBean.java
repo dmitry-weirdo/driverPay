@@ -20,9 +20,7 @@ public class InitDatabaseBean extends AbstractBean {
 			executeUpdate("/sql/scheme/init.sql",10L);
 		}else {
 			if(version == 10L)	{
-//					executeUpdate("/sql/version11.sql",11);
-			}else if(version == 11L)	{
-//					executeUpdate("/sql/version12.sql",11);
+				executeUpdate("/sql/scheme/version11.sql",11L);
 			}
 		}
 	}

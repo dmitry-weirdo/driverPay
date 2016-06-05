@@ -1,24 +1,24 @@
 package com.magenta.echo.driverpay.ui.screen.driverEdit;
 
-import com.evgenltd.kwickui.core.Screen;
-import com.evgenltd.kwickui.core.UIContext;
-import com.evgenltd.kwickui.extensions.tableview.TableViewExtension;
+import com.evgenltd.kwick.controls.extensions.tableview.TableViewExtension;
+import com.evgenltd.kwick.ui.Screen;
+import com.evgenltd.kwick.ui.UIContext;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.DriverBean;
+import com.magenta.echo.driverpay.core.bean.PaymentDocumentProcessingBean;
 import com.magenta.echo.driverpay.core.bean.PaymentLoader;
-import com.magenta.echo.driverpay.core.bean.SalaryCalculationBean;
+import com.magenta.echo.driverpay.core.bean.ReportBean;
+import com.magenta.echo.driverpay.core.bean.dao.CommonDao;
 import com.magenta.echo.driverpay.core.bean.dao.DriverDao;
-import com.magenta.echo.driverpay.core.bean.dao.PaymentDao;
-import com.magenta.echo.driverpay.core.bean.dao.PaymentReasonDao;
-import com.magenta.echo.driverpay.core.entity.Driver;
-import com.magenta.echo.driverpay.core.entity.Payment;
-import com.magenta.echo.driverpay.core.entity.PaymentDocument;
-import com.magenta.echo.driverpay.core.entity.PaymentReason;
+import com.magenta.echo.driverpay.core.entity.*;
 import com.magenta.echo.driverpay.core.entity.dto.DriverDto;
 import com.magenta.echo.driverpay.core.entity.dto.PaymentReasonDto;
+import com.magenta.echo.driverpay.core.enums.PaymentDocumentMethod;
 import com.magenta.echo.driverpay.core.enums.PaymentType;
+import com.magenta.echo.driverpay.ui.dialog.ExportHistoryBrowser;
 import com.magenta.echo.driverpay.ui.dialog.PaymentEdit;
 import com.magenta.echo.driverpay.ui.dialog.PaymentReasonEdit;
+import com.magenta.echo.driverpay.ui.util.InstantDialogs;
 import com.magenta.echo.driverpay.ui.util.Utils;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.SimpleStringProperty;
@@ -28,8 +28,10 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.controlsfx.control.Notifications;
 import org.controlsfx.control.SegmentedButton;
 
+import javax.validation.Validator;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,6 +77,7 @@ public class DriverEdit extends Screen{
 	@FXML private Button salaryCalculationRemove;
 	@FXML private DatePicker salaryCalculationUpTo;
 	@FXML private Button salaryCalculationButton;
+	@FXML private Button salaryCalculationImmediateButton;
 	@FXML private TableView<Payment> salaryCalculationTable;
 	@FXML private HBox salaryCalculationTableTotals;
 	@FXML private TableColumn<Payment,PaymentType> salaryCalculationTypeColumn;
@@ -87,11 +90,16 @@ public class DriverEdit extends Screen{
 	@FXML private TableColumn<Payment,String> salaryCalculationTaxCodeColumn;
 	@FXML private MenuItem salaryCalculationContextMenuEdit;
 	@FXML private MenuItem salaryCalculationContextMenuRemove;
+	@FXML private MenuItem salaryCalculationContextMenuImmediate;
 
 	// processing pane
 	@FXML private VBox processingPane;
 	@FXML private Button processingRollbackCalculation;
 	@FXML private Button processingButton;
+	@FXML private Button processingOpenStatementButton;
+	@FXML private Button processingMakeSageButton;
+	@FXML private Button processingMakeBarclaysButton;
+	@FXML private Button processingViewHistoryButton;
 	@FXML private ListView<PaymentDocument> processingOperationsList;
 	@FXML private TableView<Payment> processingPaymentsTable;
 	@FXML private HBox processingPaymentsTableTotals;
@@ -113,12 +121,14 @@ public class DriverEdit extends Screen{
 	private List<Payment> processingPaymentList = new ArrayList<>();
 
 	// beans
+	private final CommonDao commonDao = Context.get().getCommonDao();
+	private final DriverDao driverDao = Context.get().getDriverDao();
 	private final DriverBean driverBean = Context.get().getDriverBean();
 	private final PaymentLoader paymentLoader = Context.get().getPaymentLoader();
-	private final DriverDao driverDao = Context.get().getDriverDao();
-	private final PaymentDao paymentDao = Context.get().getPaymentDao();
-	private final PaymentReasonDao paymentReasonDao = Context.get().getPaymentReasonDao();
-	private final SalaryCalculationBean salaryCalculationBean = Context.get().getSalaryCalculationBean();
+	private final PaymentDocumentProcessingBean paymentDocumentProcessingBean = Context.get().getPaymentDocumentProcessingBean();
+	private final ReportBean reportBean = Context.get().getReportBean();
+
+	private final Validator validator = Context.get().getValidator();
 
 	public DriverEdit(final Long driverId) {
 		super("/fxml/DriverEdit.fxml");
@@ -142,6 +152,7 @@ public class DriverEdit extends Screen{
 	// ##############################################################
 
 	private void initUI()	{
+
 		toggleButtonPane.getChildren().clear();
 		toggleButtonGroup = new SegmentedButton(
 				toggleButtonCharges,
@@ -194,6 +205,7 @@ public class DriverEdit extends Screen{
 		salaryCalculationNominalCodeColumn.setCellValueFactory(new PropertyValueFactory<>("nominalCode"));
 		salaryCalculationTaxCodeColumn.setCellValueFactory(new PropertyValueFactory<>("taxCode"));
 
+		processingOperationsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		processingOperationsList.setCellFactory(param -> new PaymentDocumentListCell());
 		processingOperationsList.getSelectionModel().selectedItemProperty().addListener(param -> loadProcessedPaymentList());
 		processingOperationsList.getSelectionModel().selectedItemProperty().addListener(param -> updateProcessingCommandsState());
@@ -302,13 +314,13 @@ public class DriverEdit extends Screen{
 			return;
 		}
 
-		final PaymentDocument selectedPaymentDocument = processingOperationsList.getSelectionModel().getSelectedItem();
-		if(selectedPaymentDocument == null)	{
+		if(processingOperationsList.getSelectionModel().getSelectedItems().size() != 1)	{
 			processingPaymentList = new ArrayList<>();
-			return;
+		}else {
+			final PaymentDocument selectedPaymentDocument = processingOperationsList.getSelectionModel().getSelectedItem();
+			processingPaymentList = paymentLoader.loadPaymentList(driverId, selectedPaymentDocument.getId());
 		}
 
-		processingPaymentList = paymentLoader.loadPaymentList(driverId, selectedPaymentDocument.getId());
 		fillProcessedPayments();
 	}
 
@@ -345,6 +357,35 @@ public class DriverEdit extends Screen{
 		toggleButtonGroup.getToggleGroup().selectToggle(toggleButtonProcessing);
 	}
 
+	private Optional<PaymentDocumentMethod> askPaymentDocumentMethod()	{
+		final ButtonType cash = new ButtonType("Cash");
+		final ButtonType account = new ButtonType("Account");
+		final Dialog<PaymentDocumentMethod> dialog = new Dialog<>();
+		dialog.setTitle("Select");
+		dialog.setContentText("Select payment document type");
+		dialog.getDialogPane().getButtonTypes().addAll(account, cash, ButtonType.CANCEL);
+		dialog.setResultConverter(bt -> {
+			if(bt.equals(cash))	{
+				return PaymentDocumentMethod.CASH;
+			}else if(bt.equals(account))	{
+				return PaymentDocumentMethod.ACCOUNT;
+			}else {
+				return null;
+			}
+		});
+		return dialog.showAndWait();
+	}
+
+	private Optional<LocalDate> askDate()	{
+		final DatePicker datePicker = new DatePicker();
+		final Dialog<LocalDate> dialog = new Dialog<>();
+		dialog.setTitle("Select");
+		dialog.getDialogPane().setContent(datePicker);
+		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+		dialog.setResultConverter(bt -> datePicker.getValue());
+		return dialog.showAndWait();
+	}
+
 	// update state
 
 	private void updateToggleButtonState() {
@@ -379,12 +420,30 @@ public class DriverEdit extends Screen{
 		salaryCalculationContextMenuEdit.setDisable(selectedItemCount != 1);
 		salaryCalculationRemove.setDisable(selectedItemCount < 1);
 		salaryCalculationContextMenuRemove.setDisable(selectedItemCount < 1);
+		salaryCalculationImmediateButton.setDisable(selectedItemCount != 1);
 	}
 
 	private void updateProcessingCommandsState()	{
 		final int selectedItemCount = processingOperationsList.getSelectionModel().getSelectedItems().size();
-		processingButton.setDisable(true);
-		processingRollbackCalculation.setDisable(selectedItemCount < 1);
+		final boolean containsProcessed = processingOperationsList
+				.getSelectionModel()
+				.getSelectedItems()
+				.stream()
+				.filter(PaymentDocument::getProcessed)
+				.findAny()
+				.isPresent();
+		final boolean containsUnprocessed = processingOperationsList
+				.getSelectionModel()
+				.getSelectedItems()
+				.stream()
+				.filter(paymentDocument -> !paymentDocument.getProcessed())
+				.findAny()
+				.isPresent();
+		processingButton.setDisable(selectedItemCount < 1 || containsProcessed);
+		processingRollbackCalculation.setDisable(selectedItemCount < 1 || containsProcessed);
+		processingOpenStatementButton.setDisable(selectedItemCount != 1);
+		processingMakeSageButton.setDisable(selectedItemCount < 1 || containsUnprocessed);
+		processingMakeBarclaysButton.setDisable(selectedItemCount < 1 || containsUnprocessed);
 	}
 
 	// ##############################################################
@@ -400,7 +459,7 @@ public class DriverEdit extends Screen{
 		if(driverId == null)	{
 			driverDao.insert(fillDriver());
 		}else {
-			driverDao.update(fillDriver());
+			commonDao.update(fillDriver());
 		}
 		UIContext.get().closeScreen();
 	}
@@ -445,7 +504,7 @@ public class DriverEdit extends Screen{
 			return;
 		}
 
-		paymentReasonDao.delete(paymentReason.getId());
+		commonDao.delete(PaymentReason.class, paymentReason.getId());
 		loadPaymentReasonList();
 	}
 
@@ -470,6 +529,18 @@ public class DriverEdit extends Screen{
 				null,
 				null,
 				PaymentType.DEDUCTION,
+				false
+		).showAndWait();
+		loadPaymentList();
+	}
+
+	@FXML
+	private void handleSalaryCalculationAddDeposit(ActionEvent event) {
+		new PaymentEdit(
+				driverId,
+				null,
+				null,
+				PaymentType.DEPOSIT,
 				false
 		).showAndWait();
 		loadPaymentList();
@@ -527,30 +598,82 @@ public class DriverEdit extends Screen{
 		}
 
 		final Payment selectedPayment = salaryCalculationTable.getSelectionModel().getSelectedItem();
-		paymentDao.delete(selectedPayment.getId());
+		commonDao.delete(Payment.class, selectedPayment.getId());
 		loadPaymentList();
 	}
 
 	@FXML
 	private void handleCalculateSalary(ActionEvent event) {
-		final LocalDate upTo = salaryCalculationUpTo.getValue() == null
-				? LocalDate.now()
-				: salaryCalculationUpTo.getValue();
-		salaryCalculationBean.calculateSalary(driverId, upTo);
-		loadDriver();
-		loadPaymentList();
-		loadPaymentDocumentList();
-		loadProcessedPaymentList();
+		askPaymentDocumentMethod().map(pdm -> {
+			final LocalDate upTo = salaryCalculationUpTo.getValue() == null
+					? LocalDate.now()
+					: salaryCalculationUpTo.getValue();
+			paymentDocumentProcessingBean.calculateSalary(driverId,upTo,pdm);
+			Notifications
+					.create()
+					.title("Salary calculation")
+					.text("Completed")
+					.showInformation();
+			loadDriver();
+			loadPaymentList();
+			loadPaymentDocumentList();
+			loadProcessedPaymentList();
+			return null;
+		});
+
+	}
+
+	@FXML
+	private void handleSalaryCalculationImmediate(ActionEvent event) {
+		if(salaryCalculationTable.getSelectionModel().isEmpty())	{
+			return;
+		}
+
+		final Payment selectedPayment = salaryCalculationTable.getSelectionModel().getSelectedItem();
+		askPaymentDocumentMethod().map(pdm -> {
+
+			askDate().map(date -> {
+
+				paymentDocumentProcessingBean.processImmediatePayment(date, selectedPayment.getId(), pdm);
+				Notifications.create().title("Process payment immediately").text("Completed").showInformation();
+				loadDriver();
+				loadPaymentList();
+				loadPaymentDocumentList();
+				loadProcessedPaymentList();
+
+				return null;
+
+			});
+
+			return null;
+
+		});
 	}
 
 	// processing pane
 
 	@FXML
 	private void handleProcessingButton(ActionEvent event) {
-		loadDriver();
-		loadPaymentList();
-		loadPaymentDocumentList();
-		loadProcessedPaymentList();
+		final List<PaymentDocument> selectedPaymentDocumentList = processingOperationsList.getSelectionModel().getSelectedItems();
+		if(selectedPaymentDocumentList.isEmpty())	{
+			return;
+		}
+
+		askDate().map(date -> {
+			paymentDocumentProcessingBean.processPaymentDocument(
+					date,
+					selectedPaymentDocumentList
+							.stream()
+							.map(PaymentDocument::getId)
+							.collect(Collectors.toList())
+			);
+			Notifications.create().title("Document processing").text("Completed").showInformation();
+			loadDriver();
+			loadPaymentList();
+			loadPaymentDocumentList();
+			loadProcessedPaymentList();
+			return null;
+		});
 	}
 
 	@FXML
@@ -561,10 +684,74 @@ public class DriverEdit extends Screen{
 				.stream()
 				.map(PaymentDocument::getId)
 				.collect(Collectors.toList());
-		salaryCalculationBean.rollbackSalaryCalculation(driverId,paymentDocumentIdList);
+		paymentDocumentProcessingBean.rollbackSalaryCalculation(paymentDocumentIdList);
+		Notifications.create().title("Salary Rollback").text("Completed").showInformation();
 		loadDriver();
 		loadPaymentList();
 		loadPaymentDocumentList();
 		loadProcessedPaymentList();
 	}
+
+	@FXML
+	private void handleOpenStatement(ActionEvent event) {
+		if(processingOperationsList.getSelectionModel().isEmpty())	{
+			return;
+		}
+
+		final PaymentDocument paymentDocument = processingOperationsList
+				.getSelectionModel()
+				.getSelectedItem();
+		final ExportHistory exportHistory = reportBean.loadStatement(paymentDocument.getId());
+
+		if(exportHistory == null)	{
+			Notifications
+					.create()
+					.title("Warning")
+					.text("Statement does not exists")
+					.showWarning();
+			return;
+		}
+
+		InstantDialogs
+				.makeFileViewerDialog(exportHistory)
+				.showAndWait();
+	}
+
+	@FXML
+	private void handleMakeSage(ActionEvent event) {
+		if(processingOperationsList.getSelectionModel().isEmpty())	{
+			return;
+		}
+		final List<Long> paymentDocumentIdList = processingOperationsList
+				.getSelectionModel()
+				.getSelectedItems()
+				.stream()
+				.map(PaymentDocument::getId)
+				.collect(Collectors.toList());
+
+		final ExportHistory exportHistory = reportBean.makeSage(paymentDocumentIdList);
+		InstantDialogs.makeFileViewerDialog(exportHistory).showAndWait();
+	}
+
+	@FXML
+	private void handleMakeBarclays(ActionEvent event) {
+		if(processingOperationsList.getSelectionModel().isEmpty())	{
+			return;
+		}
+		final List<Long> paymentDocumentIdList = processingOperationsList
+				.getSelectionModel()
+				.getSelectedItems()
+				.stream()
+				.map(PaymentDocument::getId)
+				.collect(Collectors.toList());
+
+		final ExportHistory exportHistory = reportBean.makeBarclays(paymentDocumentIdList);
+		InstantDialogs.makeFileViewerDialog(exportHistory).showAndWait();
+	}
+
+	@FXML
+	private void handleViewHistory(ActionEvent event) {
+		new ExportHistoryBrowser().showAndWait();
+	}
+
 }

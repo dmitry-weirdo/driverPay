@@ -4,6 +4,7 @@ package com.magenta.echo.driverpay.core.entity;
 import com.magenta.echo.driverpay.core.enums.JobType;
 
 import javax.persistence.*;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -27,8 +28,9 @@ public class Job {
 	@NotNull(message = "Should not be null")
     private Driver driver;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "payment_id")
+	@Valid
     private Payment payment;
 
     @Column(name = "job_date")

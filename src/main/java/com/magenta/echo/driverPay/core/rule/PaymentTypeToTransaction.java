@@ -8,7 +8,7 @@ import com.magenta.echo.driverpay.core.enums.PaymentType;
  * Author:  Evgeniy
  * Created: 14-05-2016 18:17
  */
-public class PaymentTypeToTransactionRules {
+public class PaymentTypeToTransaction {
 	public static BalanceType getFromBalanceType(final PaymentType paymentType)	{
 		switch(paymentType)	{
 			case CASH_JOB:

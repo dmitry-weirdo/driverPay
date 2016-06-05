@@ -1,12 +1,11 @@
 package com.magenta.echo.driverpay.ui.dialog;
 
-import com.evgenltd.kwickui.controls.objectbrowser.ObjectBrowser;
-import com.evgenltd.kwickui.core.DialogScreen;
+import com.evgenltd.kwick.controls.objectbrowser.ObjectBrowser;
+import com.evgenltd.kwick.ui.DialogScreen;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.BalanceBean;
 import com.magenta.echo.driverpay.core.bean.PaymentLoader;
-import com.magenta.echo.driverpay.core.bean.dao.PaymentDao;
-import com.magenta.echo.driverpay.core.bean.dao.PaymentReasonDao;
+import com.magenta.echo.driverpay.core.bean.dao.CommonDao;
 import com.magenta.echo.driverpay.core.entity.Balance;
 import com.magenta.echo.driverpay.core.entity.Driver;
 import com.magenta.echo.driverpay.core.entity.Payment;
@@ -85,8 +84,7 @@ public class PaymentReasonEdit extends DialogScreen<Void> {
 	private List<Payment> paymentList = new ArrayList<>();
 
 	// ==== bean ====
-	private PaymentReasonDao paymentReasonDao = Context.get().getPaymentReasonDao();
-	private PaymentDao paymentDao = Context.get().getPaymentDao();
+	private CommonDao commonDao = Context.get().getCommonDao();
 	private PaymentLoader paymentLoader = Context.get().getPaymentLoader();
 	private BalanceBean balanceBean = Context.get().getBalanceBean();
 
@@ -193,7 +191,7 @@ public class PaymentReasonEdit extends DialogScreen<Void> {
 
 	private void loadData()	{
 		if(paymentReasonId != null)	{
-			paymentReason = paymentReasonDao.find(paymentReasonId);
+			paymentReason = commonDao.find(PaymentReason.class, paymentReasonId);
 		}
 		fillUI();
 	}
@@ -271,9 +269,9 @@ public class PaymentReasonEdit extends DialogScreen<Void> {
 		if(Objects.equals(buttonType, ButtonType.OK))	{
 			fillPaymentReason();
 			if(paymentReasonId == null)	{
-				paymentReasonDao.insert(paymentReason);
+				commonDao.insert(paymentReason);
 			}else {
-				paymentReasonDao.update(paymentReason);
+				commonDao.update(paymentReason);
 			}
 		}
 		return null;
@@ -329,7 +327,7 @@ public class PaymentReasonEdit extends DialogScreen<Void> {
 		}
 
 		final Payment selectedPayment = paymentBrowser.getSelectedItem();
-		paymentDao.delete(selectedPayment.getId());
+		commonDao.delete(selectedPayment);
 		loadPaymentsData();
 	}
 

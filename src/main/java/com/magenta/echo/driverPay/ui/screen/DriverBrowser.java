@@ -1,8 +1,8 @@
 package com.magenta.echo.driverpay.ui.screen;
 
-import com.evgenltd.kwickui.core.Screen;
-import com.evgenltd.kwickui.core.UIContext;
-import com.evgenltd.kwickui.extensions.tableview.TableViewExtension;
+import com.evgenltd.kwick.controls.extensions.tableview.TableViewExtension;
+import com.evgenltd.kwick.ui.Screen;
+import com.evgenltd.kwick.ui.UIContext;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.DriverBean;
 import com.magenta.echo.driverpay.core.entity.dto.DriverDto;

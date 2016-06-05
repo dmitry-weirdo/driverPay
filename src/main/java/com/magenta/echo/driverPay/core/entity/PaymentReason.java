@@ -18,7 +18,7 @@ import java.time.Period;
  */
 @Entity
 @Table(name = "payment_reasons")
-public class PaymentReason {
+public class PaymentReason implements Identified{
 
     @Id
     @GeneratedValue
@@ -217,4 +217,20 @@ public class PaymentReason {
     public void setEndless(final boolean endless)   {
         endDate = null;
     }
+
+	@Override
+	public boolean equals(Object o) {
+		if(this == o) return true;
+		if(o == null || getClass() != o.getClass()) return false;
+
+		PaymentReason that = (PaymentReason)o;
+
+		return id != null ? id.equals(that.id) : that.id == null;
+
+	}
+
+	@Override
+	public int hashCode() {
+		return id != null ? id.hashCode() : 0;
+	}
 }

@@ -1,6 +1,6 @@
 package com.magenta.echo.driverpay.ui.util;
 
-import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker;
+import com.evgenltd.kwick.controls.objectpicker.ObjectPicker;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.DriverBean;
 import com.magenta.echo.driverpay.core.entity.Driver;

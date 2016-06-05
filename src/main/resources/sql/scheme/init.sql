@@ -11,6 +11,11 @@ insert into hibernate_sequence (next_val) values (1);
 insert into hibernate_sequence (next_val) values (1);
 insert into hibernate_sequence (next_val) values (1);
 
+create table drivers (
+    id integer primary key autoincrement,
+    name text
+);
+
 create table balances (
     id integer primary key autoincrement,
     type text,
@@ -19,11 +24,6 @@ create table balances (
 );
 
 insert into balances (id,type,driver_id) values (null,'COMPANY',null);
-
-create table drivers (
-    id integer primary key autoincrement,
-    name text
-);
 
 create table payment_reasons (
     id integer primary key autoincrement,
@@ -110,4 +110,24 @@ create table transactions (
     foreign key (payment_id) references payments (id),
     foreign key (from_id) references balances (id),
     foreign key (to_id) references balances (id)
+);
+
+create table files (
+    id integer primary key autoincrement,
+    content blob
+)
+
+create table export_history (
+    id integer primary key autoincrement,
+    date integer,
+    type text,
+    file_id integer,
+    foreign key (file_id) references files (id)
+);
+
+create table payment_document_exports (
+    export_history_id integer,
+    payment_document_id integer,
+    foreign key (export_history_id) references export_history (id),
+    foreign key (payment_document_id) references payment_documents (id)
 );

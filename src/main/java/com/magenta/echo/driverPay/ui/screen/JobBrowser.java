@@ -1,9 +1,9 @@
 package com.magenta.echo.driverpay.ui.screen;
 
-import com.evgenltd.kwickui.controls.objectbrowser.ObjectBrowser;
-import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker;
-import com.evgenltd.kwickui.core.Screen;
-import com.evgenltd.kwickui.core.UIContext;
+import com.evgenltd.kwick.controls.objectbrowser.ObjectBrowser;
+import com.evgenltd.kwick.controls.objectpicker.ObjectPicker;
+import com.evgenltd.kwick.ui.Screen;
+import com.evgenltd.kwick.ui.UIContext;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.JobBean;
 import com.magenta.echo.driverpay.core.bean.dao.JobDao;

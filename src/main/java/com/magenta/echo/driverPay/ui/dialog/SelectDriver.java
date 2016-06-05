@@ -1,7 +1,7 @@
 package com.magenta.echo.driverpay.ui.dialog;
 
-import com.evgenltd.kwickui.core.DialogScreen;
-import com.evgenltd.kwickui.extensions.listview.ListViewExtension;
+import com.evgenltd.kwick.controls.extensions.listview.ListViewExtension;
+import com.evgenltd.kwick.ui.DialogScreen;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.DriverBean;
 import com.magenta.echo.driverpay.core.entity.Driver;

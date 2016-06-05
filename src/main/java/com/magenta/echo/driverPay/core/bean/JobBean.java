@@ -1,7 +1,7 @@
 package com.magenta.echo.driverpay.core.bean;
 
 import com.magenta.echo.driverpay.core.Queries;
-import com.magenta.echo.driverpay.core.bean.dao.JobDao;
+import com.magenta.echo.driverpay.core.bean.dao.CommonDao;
 import com.magenta.echo.driverpay.core.entity.Job;
 import com.magenta.echo.driverpay.core.entity.dto.JobDto;
 import com.magenta.echo.driverpay.core.enums.JobType;
@@ -26,10 +26,10 @@ import java.util.List;
 public class JobBean extends AbstractBean{
 
 	@Autowired
-	private JobDao jobDao;
+	private CommonDao commonDao;
 
 	public void butchDelete(@NotNull final List<Long> jobIdList)	{
-		jobIdList.forEach(jobDao::delete);
+		jobIdList.forEach(id -> commonDao.delete(Job.class,id));
 	}
 
 	@SuppressWarnings("unchecked")

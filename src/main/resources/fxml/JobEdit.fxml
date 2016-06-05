@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.evgenltd.kwickui.controls.objectbrowser.ObjectBrowser?>
-<?import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker?>
+<?import com.evgenltd.kwick.controls.objectbrowser.ObjectBrowser?>
+<?import com.evgenltd.kwick.controls.objectpicker.ObjectPicker?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>

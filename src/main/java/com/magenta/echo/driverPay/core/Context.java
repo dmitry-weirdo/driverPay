@@ -1,8 +1,12 @@
 package com.magenta.echo.driverpay.core;
 
 import com.magenta.echo.driverpay.core.bean.*;
-import com.magenta.echo.driverpay.core.bean.dao.*;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import com.magenta.echo.driverpay.core.bean.dao.CommonDao;
+import com.magenta.echo.driverpay.core.bean.dao.DriverDao;
+import com.magenta.echo.driverpay.core.bean.dao.JobDao;
+import org.springframework.context.ApplicationContext;
+
+import javax.validation.Validator;
 
 /**
  * Project: Driver Pay
@@ -12,22 +16,20 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public class Context {
     private static final Context context = new Context();
 
-	private AnnotationConfigApplicationContext springContext;
+	private ApplicationContext springContext;
 
-	private BalanceDao balanceDao;
+	private Validator validator;
+
+	private CommonDao commonDao;
 	private DriverDao driverDao;
-	private PaymentReasonDao paymentReasonDao;
-	private PaymentDao paymentDao;
 	private JobDao jobDao;
-	private JobRateDao jobRateDao;
-	private PaymentDocumentDao paymentDocumentDao;
-	private TransactionDao transactionDao;
 
-	private DriverBean driverBean;
-	private PaymentLoader paymentLoader;
 	private BalanceBean balanceBean;
-	private SalaryCalculationBean salaryCalculationBean;
+	private DriverBean driverBean;
 	private JobBean jobBean;
+	private PaymentLoader paymentLoader;
+	private PaymentDocumentProcessingBean paymentDocumentProcessingBean;
+	private ReportBean reportBean;
 
     protected Context()    {}
 
@@ -35,17 +37,24 @@ public class Context {
         return context;
     }
 
-	public void setSpringContext(AnnotationConfigApplicationContext springContext) {
+	public void setSpringContext(ApplicationContext springContext) {
 		this.springContext = springContext;
 	}
 
 	//
 
-	public BalanceDao getBalanceDao() {
-		if(balanceDao == null)	{
-			balanceDao = springContext.getBean(BalanceDao.class);
+	public Validator getValidator() {
+		if(validator == null)	{
+			validator = springContext.getBean(Validator.class);
 		}
-		return balanceDao;
+		return validator;
+	}
+
+	public CommonDao getCommonDao()	{
+		if(commonDao == null)	{
+			commonDao = springContext.getBean(CommonDao.class);
+		}
+		return commonDao;
 	}
 
 	public DriverDao getDriverDao() {
@@ -55,46 +64,11 @@ public class Context {
 		return driverDao;
 	}
 
-	public PaymentReasonDao getPaymentReasonDao() {
-		if(paymentReasonDao == null)	{
-			paymentReasonDao = springContext.getBean(PaymentReasonDao.class);
-		}
-		return paymentReasonDao;
-	}
-
-	public PaymentDao getPaymentDao() {
-		if(paymentDao == null)	{
-			paymentDao = springContext.getBean(PaymentDao.class);
-		}
-		return paymentDao;
-	}
-
 	public JobDao getJobDao() {
 		if(jobDao == null)	{
 			jobDao = springContext.getBean(JobDao.class);
 		}
 		return jobDao;
-	}
-
-	public JobRateDao getJobRateDao() {
-		if(jobRateDao == null)	{
-			jobRateDao = springContext.getBean(JobRateDao.class);
-		}
-		return jobRateDao;
-	}
-
-	public PaymentDocumentDao getPaymentDocumentDao() {
-		if(paymentDocumentDao == null)	{
-			paymentDocumentDao = springContext.getBean(PaymentDocumentDao.class);
-		}
-		return paymentDocumentDao;
-	}
-
-	public TransactionDao getTransactionDao() {
-		if(transactionDao == null)	{
-			transactionDao = springContext.getBean(TransactionDao.class);
-		}
-		return transactionDao;
 	}
 
 	public DriverBean getDriverBean() {
@@ -118,17 +92,24 @@ public class Context {
 		return balanceBean;
 	}
 
-	public SalaryCalculationBean getSalaryCalculationBean() {
-		if(salaryCalculationBean == null)	{
-			salaryCalculationBean = springContext.getBean(SalaryCalculationBean.class);
-		}
-		return salaryCalculationBean;
-	}
-
 	public JobBean getJobBean() {
 		if(jobBean == null)	{
 			jobBean = springContext.getBean(JobBean.class);
 		}
 		return jobBean;
+	}
+
+	public PaymentDocumentProcessingBean getPaymentDocumentProcessingBean() {
+		if(paymentDocumentProcessingBean == null)	{
+			paymentDocumentProcessingBean = springContext.getBean(PaymentDocumentProcessingBean.class);
+		}
+		return paymentDocumentProcessingBean;
+	}
+
+	public ReportBean getReportBean() {
+		if(reportBean == null)	{
+			reportBean = springContext.getBean(ReportBean.class);
+		}
+		return reportBean;
 	}
 }

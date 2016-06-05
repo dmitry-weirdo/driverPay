@@ -7,7 +7,7 @@ import com.magenta.echo.driverpay.core.enums.BalanceType;
 import com.magenta.echo.driverpay.core.enums.PaymentStatus;
 import com.magenta.echo.driverpay.core.enums.PaymentType;
 import com.magenta.echo.driverpay.core.rule.JobAndPaymentTypesMatching;
-import com.magenta.echo.driverpay.core.rule.PaymentTypeToTransactionRules;
+import com.magenta.echo.driverpay.core.rule.PaymentTypeToTransaction;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
@@ -147,8 +147,8 @@ public class PaymentFactory {
 
 		final PaymentType paymentType = JobAndPaymentTypesMatching.from(job.getType());
 
-		final BalanceType fromType = PaymentTypeToTransactionRules.getFromBalanceType(paymentType);
-		final BalanceType toType = PaymentTypeToTransactionRules.getToBalanceType(paymentType);
+		final BalanceType fromType = PaymentTypeToTransaction.getFromBalanceType(paymentType);
+		final BalanceType toType = PaymentTypeToTransaction.getToBalanceType(paymentType);
 
 		final Balance from = getBalanceBean().getBalance(driver, fromType);
 		final Balance to = getBalanceBean().getBalance(driver, toType);
@@ -174,6 +174,38 @@ public class PaymentFactory {
 		payment.setNominalCode("—");
 		payment.setTaxCode("—");
 
+		return payment;
+	}
+
+	public static Payment build(
+			@NotNull final Driver driver,
+			@NotNull final PaymentType type,
+			@NotNull final LocalDate plannedDate,
+			@NotNull final Double net,
+			@NotNull final Double vat,
+			@NotNull final Double total,
+			@NotNull final String nominalCode,
+			@NotNull final String taxCode
+	)	{
+
+		final BalanceType fromType = PaymentTypeToTransaction.getFromBalanceType(type);
+		final BalanceType toType = PaymentTypeToTransaction.getToBalanceType(type);
+
+		final Balance from = getBalanceBean().getBalance(driver, fromType);
+		final Balance to = getBalanceBean().getBalance(driver, toType);
+
+		final Payment payment = new Payment();
+		payment.setDriver(driver);
+		payment.setType(type);
+		payment.setFrom(from);
+		payment.setTo(to);
+		payment.setStatus(PaymentStatus.NONE);
+		payment.setPlannedDate(plannedDate);
+		payment.setNet(net);
+		payment.setVat(vat);
+		payment.setTotal(total);
+		payment.setNominalCode(nominalCode);
+		payment.setTaxCode(taxCode);
 		return payment;
 	}
 

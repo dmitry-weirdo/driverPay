@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<TableView fx:id="exportHistoryTable" xmlns="http://javafx.com/javafx/8.0.72" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magenta.echo.driverpay.ui.dialog.ExportHistoryBrowser">
+  <columns>
+    <TableColumn fx:id="dateColumn" prefWidth="75.0" text="Date" />
+    <TableColumn fx:id="typeColumn" prefWidth="150.0" text="Type" />
+      <TableColumn fx:id="viewColumn" prefWidth="-1.0" />
+      <TableColumn fx:id="saveColumn" prefWidth="-1.0" />
+  </columns>
+</TableView>

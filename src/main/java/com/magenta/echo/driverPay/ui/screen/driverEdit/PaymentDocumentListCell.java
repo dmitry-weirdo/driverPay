@@ -1,9 +1,15 @@
 package com.magenta.echo.driverpay.ui.screen.driverEdit;
 
 import com.magenta.echo.driverpay.core.entity.PaymentDocument;
+import com.magenta.echo.driverpay.core.enums.PaymentDocumentMethod;
 import com.magenta.echo.driverpay.ui.util.Constants;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+
+import java.util.Objects;
 
 /**
  * Project: driverPay-prototype
@@ -18,12 +24,29 @@ public class PaymentDocumentListCell extends ListCell<PaymentDocument> {
 			setText("");
 			setGraphic(null);
 		}else {
-			final ImageView imageView = new ImageView(item.getProcessed()
+
+			final BorderPane borderPane = new BorderPane();
+
+			final ImageView processed = new ImageView(item.getProcessed()
 					? Constants.DOCUMENT_INVOICE_TICK
 					: Constants.DOCUMENT_INVOICE
 			);
-			setText(item.getPaymentDate().toString());
-			setGraphic(imageView);
+			borderPane.setLeft(processed);
+
+			final Label content = new Label(String.format(
+					"%s from %s",
+					item.getType().getLabel(),
+					item.getPaymentDate()
+			));
+			BorderPane.setAlignment(content, Pos.CENTER_LEFT);
+			borderPane.setCenter(content);
+
+			if(Objects.equals(PaymentDocumentMethod.CASH, item.getMethod()))	{
+				final ImageView method = new ImageView(Constants.MONEY_COIN);
+				borderPane.setRight(method);
+			}
+
+			setGraphic(borderPane);
 		}
 	}
 }

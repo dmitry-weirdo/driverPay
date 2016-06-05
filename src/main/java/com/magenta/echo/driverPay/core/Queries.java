@@ -19,4 +19,8 @@ public class Queries {
 
 	public static final String LOAD_JOB_LIST = "/sql/queries/loadJobList.sql";
 	public static final String LOAD_JOB_BY_ID = "/sql/queries/loadJobById.hql";
+
+	public static final String LOAD_EXPORT_HISTORY_LIST = "/sql/queries/loadExportHistoryList.hql";
+	public static final String LOAD_SAGE = "/sql/queries/loadSage.sql";
+	public static final String LOAD_BARCLAYS = "/sql/queries/loadBarclays.sql";
 }

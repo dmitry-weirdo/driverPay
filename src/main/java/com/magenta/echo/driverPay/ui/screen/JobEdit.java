@@ -1,11 +1,12 @@
 package com.magenta.echo.driverpay.ui.screen;
 
-import com.evgenltd.kwickui.controls.objectbrowser.ObjectBrowser;
-import com.evgenltd.kwickui.controls.objectpicker.ObjectPicker;
-import com.evgenltd.kwickui.core.Screen;
-import com.evgenltd.kwickui.core.UIContext;
+import com.evgenltd.kwick.controls.objectbrowser.ObjectBrowser;
+import com.evgenltd.kwick.controls.objectpicker.ObjectPicker;
+import com.evgenltd.kwick.ui.Screen;
+import com.evgenltd.kwick.ui.UIContext;
 import com.magenta.echo.driverpay.core.Context;
 import com.magenta.echo.driverpay.core.bean.JobBean;
+import com.magenta.echo.driverpay.core.bean.dao.CommonDao;
 import com.magenta.echo.driverpay.core.bean.dao.JobDao;
 import com.magenta.echo.driverpay.core.entity.Driver;
 import com.magenta.echo.driverpay.core.entity.Job;
@@ -22,6 +23,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import org.controlsfx.validation.ValidationSupport;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,9 +43,12 @@ public class JobEdit extends Screen {
 	@FXML private TextField pricingField;
 	@FXML private ObjectBrowser<JobRate> jobRateBrowser;
 
+	private final ValidationSupport validationSupport = new ValidationSupport();
+
 	private Long jobId;
 	private Job job = new Job();
 
+	private CommonDao commonDao = Context.get().getCommonDao();
 	private JobDao jobDao = Context.get().getJobDao();
 	private JobBean jobBean = Context.get().getJobBean();
 
@@ -63,12 +68,14 @@ public class JobEdit extends Screen {
 
 	private void initUI()	{
 
-		typeField.setButtonCell(new OptionalJobTypeListCell(true));
-		typeField.setCellFactory(param -> new OptionalJobTypeListCell(false));
-		typeField.getItems().setAll(Arrays.asList(
+		final List<Optional<JobType>> allowedJobType = Arrays.asList(
 				Optional.of(JobType.REGULAR_JOB),
 				Optional.of(JobType.CASH_JOB)
-		));
+		);
+
+		typeField.setButtonCell(new OptionalJobTypeListCell(true));
+		typeField.setCellFactory(param -> new OptionalJobTypeListCell(false));
+		typeField.getItems().setAll(allowedJobType);
 		typeField.getSelectionModel().select(Optional.of(JobType.REGULAR_JOB));
 
 		ObjectBrowserHelper.setupJobRateTable(jobRateBrowser);
@@ -151,7 +158,7 @@ public class JobEdit extends Screen {
 		if(jobId == null)	{
 			jobDao.insert(job);
 		}else {
-			jobDao.update(job);
+			commonDao.update(job);
 		}
 		UIContext.get().closeScreen();
 	}

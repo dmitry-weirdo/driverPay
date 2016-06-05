@@ -1,6 +1,6 @@
 package com.magenta.echo.driverpay.ui.util;
 
-import com.evgenltd.kwickui.controls.objectbrowser.ObjectBrowser;
+import com.evgenltd.kwick.controls.objectbrowser.ObjectBrowser;
 import com.magenta.echo.driverpay.core.entity.JobRate;
 import com.magenta.echo.driverpay.core.entity.Payment;
 import com.magenta.echo.driverpay.core.entity.dto.JobDto;

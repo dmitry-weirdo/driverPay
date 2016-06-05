@@ -20,4 +20,7 @@ public class Constants {
 	public static final Image DOCUMENT_INVOICE = new Image("/image/document-invoice.png");
 	public static final Image DOCUMENT_INVOICE_TICK = new Image("/image/document-invoice-tick.png");
 
+	public static final Image DISK_RETURN_BLACK = new Image("/image/disk-return-black.png");
+	public static final Image MAGNIFIER_ZOOM = new Image("/image/magnifier-zoom.png");
+
 }

@@ -1,14 +1,20 @@
 package com.magenta.echo.driverpay.core.entity;
 
 
+import com.magenta.echo.driverpay.core.entity.constraint.CheckPaymentStatus;
 import com.magenta.echo.driverpay.core.enums.PaymentStatus;
 import com.magenta.echo.driverpay.core.enums.PaymentType;
+import com.magenta.echo.driverpay.core.validation.group.Delete;
+import com.magenta.echo.driverpay.core.validation.group.DocumentProcessing;
+import com.magenta.echo.driverpay.core.validation.group.SalaryCalculation;
+import com.magenta.echo.driverpay.core.validation.group.SalaryRollback;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.Set;
 
 /**
  * Project: Driver Pay Enhanced
@@ -17,7 +23,8 @@ import java.time.LocalDate;
  */
 @Entity
 @Table(name = "payments")
-public class Payment {
+//@CheckUpdate(checker = PaymentUpdateChecker.class)
+public class Payment implements Identified {
 
     @Id
     @GeneratedValue
@@ -38,7 +45,11 @@ public class Payment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_document_id")
+	@NotNull(groups = {SalaryRollback.class, DocumentProcessing.class})
     private PaymentDocument paymentDocument;
+
+	@OneToOne(fetch = FetchType.LAZY, mappedBy = "payment")
+	private Job job;
 
     @ManyToOne
     @JoinColumn(name = "from_id")
@@ -56,6 +67,16 @@ public class Payment {
 
     @Enumerated(EnumType.STRING)
 	@NotNull(message = "Should not be null")
+	@CheckPaymentStatus.List({
+			@CheckPaymentStatus(
+					expected = PaymentStatus.NONE,
+					groups = {SalaryCalculation.class, Delete.class}
+			),
+			@CheckPaymentStatus(
+					expected = PaymentStatus.CALCULATED,
+					groups = {SalaryRollback.class, DocumentProcessing.class}
+			)
+	})
     private PaymentStatus status = PaymentStatus.NONE;
 
     @Column(name = "planned_date")
@@ -80,6 +101,9 @@ public class Payment {
 	@NotEmpty(message = "Should not be empty")
 	@Length(message = "Should be less than 255")
     private String taxCode;
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "payment", cascade = CascadeType.ALL)
+	private Set<Transaction> transactionSet;
 
     public Long getId() {
         return id;
@@ -121,7 +145,15 @@ public class Payment {
         this.paymentDocument = paymentDocument;
     }
 
-    public Balance getFrom() {
+	public Job getJob() {
+		return job;
+	}
+
+	public void setJob(Job job) {
+		this.job = job;
+	}
+
+	public Balance getFrom() {
         return from;
     }
 
@@ -200,4 +232,12 @@ public class Payment {
     public void setTaxCode(final String taxCode) {
         this.taxCode = taxCode;
     }
+
+	public Set<Transaction> getTransactionSet() {
+		return transactionSet;
+	}
+
+	public void setTransactionSet(Set<Transaction> transactionSet) {
+		this.transactionSet = transactionSet;
+	}
 }

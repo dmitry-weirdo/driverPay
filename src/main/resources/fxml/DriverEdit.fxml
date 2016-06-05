@@ -91,6 +91,7 @@
                           <items>
                             <MenuItem mnemonicParsing="false" onAction="#handleSalaryCalculationAddCredit" text="Credit" />
                             <MenuItem mnemonicParsing="false" onAction="#handleSalaryCalculationAddDeduction" text="Deduction" />
+                              <MenuItem mnemonicParsing="false" onAction="#handleSalaryCalculationAddDeposit" text="Deposit" />
                               <MenuItem mnemonicParsing="false" onAction="#handleSalaryCalculationAddCashPaymentBack" text="Cash Payment Back" />
                               <MenuItem mnemonicParsing="false" onAction="#handleSalaryCalculationAddReleaseDeduction" text="Release Deposit" />
                           </items>
@@ -100,6 +101,7 @@
                         <DatePicker fx:id="salaryCalculationUpTo" prefWidth="100.0" />
                         <Separator orientation="VERTICAL" />
                       <Button fx:id="salaryCalculationButton" mnemonicParsing="false" onAction="#handleCalculateSalary" text="Calculate..." />
+                        <Button fx:id="salaryCalculationImmediateButton" mnemonicParsing="false" onAction="#handleSalaryCalculationImmediate" text="Immediate..." />
                     </items>
                   </ToolBar>
                   <TableView fx:id="salaryCalculationTable" VBox.vgrow="ALWAYS">
@@ -118,9 +120,12 @@
                           <items>
                             <MenuItem mnemonicParsing="false" onAction="#handleSalaryCalculationAddCredit" text="Add credit" />
                               <MenuItem mnemonicParsing="false" onAction="#handleSalaryCalculationAddDeduction" text="Add deduction" />
+                              <MenuItem mnemonicParsing="false" onAction="#handleSalaryCalculationAddDeposit" text="Add deposit" />
                               <SeparatorMenuItem mnemonicParsing="false" />
                               <MenuItem fx:id="salaryCalculationContextMenuEdit" mnemonicParsing="false" onAction="#handleSalaryCalculationEdit" text="Edit" />
                               <MenuItem fx:id="salaryCalculationContextMenuRemove" mnemonicParsing="false" onAction="#handleSalaryCalculationRemove" text="Remove" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="salaryCalculationContextMenuImmediate" mnemonicParsing="false" onAction="#handleSalaryCalculationImmediate" text="Immediate..." />
                           </items>
                         </ContextMenu>
                      </contextMenu>
@@ -136,9 +141,15 @@
                           <items>
                               <Button fx:id="processingRollbackCalculation" mnemonicParsing="false" onAction="#handleRollbackCalculation" text="Rollback calculation" />
                             <Button fx:id="processingButton" mnemonicParsing="false" onAction="#handleProcessingButton" text="Process..." />
+                              <Separator orientation="VERTICAL" />
+                              <Button fx:id="processingOpenStatementButton" mnemonicParsing="false" onAction="#handleOpenStatement" text="Statement" />
+                              <Button fx:id="processingMakeSageButton" mnemonicParsing="false" onAction="#handleMakeSage" text="Sage" />
+                              <Button fx:id="processingMakeBarclaysButton" mnemonicParsing="false" onAction="#handleMakeBarclays" text="Barclays" />
+                              <Separator orientation="VERTICAL" />
+                              <Button fx:id="processingViewHistoryButton" mnemonicParsing="false" onAction="#handleViewHistory" text="View History..." />
                           </items>
                         </ToolBar>
-                        <SplitPane dividerPositions="0.2" VBox.vgrow="ALWAYS">
+                        <SplitPane dividerPositions="0.3" VBox.vgrow="ALWAYS">
                            <items>
                               <ListView fx:id="processingOperationsList" />
                               <VBox>

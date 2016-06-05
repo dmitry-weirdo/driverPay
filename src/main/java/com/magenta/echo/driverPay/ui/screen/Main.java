@@ -1,7 +1,7 @@
 package com.magenta.echo.driverpay.ui.screen;
 
-import com.evgenltd.kwickui.core.Screen;
-import com.evgenltd.kwickui.core.UIContext;
+import com.evgenltd.kwick.ui.Screen;
+import com.evgenltd.kwick.ui.UIContext;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 

@@ -1,11 +1,15 @@
 package com.magenta.echo.driverpay.core.entity;
 
 
+import com.magenta.echo.driverpay.core.entity.constraint.CheckDriverBalances;
 import com.magenta.echo.driverpay.core.enums.BalanceType;
+import com.magenta.echo.driverpay.core.validation.group.Update;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.groups.Default;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -17,17 +21,20 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "drivers")
-public class Driver {
+// todo check for update - it should not contains changing of balances
+public class Driver implements Identified{
 
 	@Id
 	@GeneratedValue
 	private Long id;
 
-	@NotEmpty(message = "Should not be empty")
+	@NotEmpty(message = "Should not be empty",groups = Default.class)
 	@Length(max = 255, message = "Should be less than 255")
 	private String name;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "driver")
+	@NotNull(message = "Should not be null")
+	@CheckDriverBalances(groups = Update.class)
 	private Set<Balance> balances;
 
 	public Long getId() {
@@ -74,5 +81,21 @@ public class Driver {
 			throw new IllegalStateException("Drive does not have Driver balance");
 		}
 		return balanceHolder.get();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if(this == o) return true;
+		if(o == null || getClass() != o.getClass()) return false;
+
+		Driver driver = (Driver)o;
+
+		return id != null ? id.equals(driver.id) : driver.id == null;
+
+	}
+
+	@Override
+	public int hashCode() {
+		return id != null ? id.hashCode() : 0;
 	}
 }
