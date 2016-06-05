@@ -115,7 +115,7 @@ create table transactions (
 create table files (
     id integer primary key autoincrement,
     content blob
-)
+);
 
 create table export_history (
     id integer primary key autoincrement,

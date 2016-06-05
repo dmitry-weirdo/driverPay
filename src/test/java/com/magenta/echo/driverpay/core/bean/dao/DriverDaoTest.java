@@ -58,7 +58,7 @@ public class DriverDaoTest extends AbstractBeanTest{
 		commonDao.delete(expected);
 
 		final List<Driver> result = entityManager
-				.createQuery("select d from Drive d",Driver.class)
+				.createQuery("select d from Driver d",Driver.class)
 				.getResultList();
 		Assert.assertTrue(result.isEmpty());
 	}
