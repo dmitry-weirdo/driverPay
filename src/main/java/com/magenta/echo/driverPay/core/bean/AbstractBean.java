@@ -6,9 +6,9 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Project: Driver Pay
@@ -32,9 +32,15 @@ public abstract class AbstractBean {
 
 	protected String getQuery(@NotNull final String path)	{
 		try {
-			final URI uri = getClass().getResource(path).toURI();
-			final byte[] content = Files.readAllBytes(Paths.get(uri));
-			return new String(content);
+			getLogger().info("Load query "+path);
+			final InputStream stream = getClass().getResourceAsStream(path);
+			final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+			final StringBuilder sb = new StringBuilder();
+			String line;
+			while((line = reader.readLine()) != null) {
+				sb.append(line).append("\n");
+			}
+			return sb.toString();
 		}catch(final Exception e) {
 			getLogger().error(e);
 			throw new RuntimeException(e);

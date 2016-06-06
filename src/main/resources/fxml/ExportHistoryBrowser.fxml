@@ -5,7 +5,7 @@
   <columns>
     <TableColumn fx:id="dateColumn" prefWidth="75.0" text="Date" />
     <TableColumn fx:id="typeColumn" prefWidth="150.0" text="Type" />
-      <TableColumn fx:id="viewColumn" prefWidth="-1.0" />
-      <TableColumn fx:id="saveColumn" prefWidth="-1.0" />
+      <TableColumn fx:id="viewColumn" prefWidth="40" />
+      <TableColumn fx:id="saveColumn" prefWidth="40" />
   </columns>
 </TableView>

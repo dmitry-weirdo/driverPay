@@ -17,7 +17,7 @@ public class InitDatabaseBean extends AbstractBean {
 		final Long version = getVersion();
 		getLogger().info(String.format("Current database scheme version is [%s]",version));
 		if(version < 10L)	{
-			executeUpdate("/sql/scheme/init.sql",10L);
+			executeUpdate("/sql/scheme/init.sql",11L);
 		}else {
 			if(version == 10L)	{
 				executeUpdate("/sql/scheme/version11.sql",11L);
@@ -39,13 +39,17 @@ public class InitDatabaseBean extends AbstractBean {
 
 	private void executeUpdate(@NotNull final String path, @NotNull final Long newVersion)	{
 
-		getLogger().info(String.format("Update database to version %s",newVersion));
+		getLogger().info(String.format("Update database to version %s", newVersion));
 
 		final String initQuery = getQuery(path);
 		final String[] queries = initQuery.split(";");
 
 		for(final String query : queries) {
-			getEntityManager().createNativeQuery(query).executeUpdate();
+			final String trimmedQuery = query.trim();
+			if(trimmedQuery.length() == 0)	{
+				continue;
+			}
+			getEntityManager().createNativeQuery(trimmedQuery).executeUpdate();
 		}
 
 		updateVersion(newVersion);

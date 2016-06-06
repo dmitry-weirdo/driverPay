@@ -12,7 +12,7 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <Root level="ERROR">
+        <Root level="INFO">
             <AppenderRef ref="rollingfile"/>
         </Root>
     </Loggers>

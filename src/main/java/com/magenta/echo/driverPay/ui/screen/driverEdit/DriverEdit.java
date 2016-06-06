@@ -14,6 +14,7 @@ import com.magenta.echo.driverpay.core.entity.*;
 import com.magenta.echo.driverpay.core.entity.dto.DriverDto;
 import com.magenta.echo.driverpay.core.entity.dto.PaymentReasonDto;
 import com.magenta.echo.driverpay.core.enums.PaymentDocumentMethod;
+import com.magenta.echo.driverpay.core.enums.PaymentDocumentType;
 import com.magenta.echo.driverpay.core.enums.PaymentType;
 import com.magenta.echo.driverpay.ui.dialog.ExportHistoryBrowser;
 import com.magenta.echo.driverpay.ui.dialog.PaymentEdit;
@@ -392,14 +393,24 @@ public class DriverEdit extends Screen{
 		final boolean isChargesPaneVisible = toggleButtonCharges.isSelected();
 		chargesPane.setVisible(isChargesPaneVisible);
 		chargesPane.setDisable(!isChargesPaneVisible);
+		if(isChargesPaneVisible)	{
+			loadPaymentReasonList();
+		}
 
 		final boolean isSalaryCalculationPaneVisible = toggleButtonSalaryCalculation.isSelected();
 		salaryCalculationPane.setVisible(isSalaryCalculationPaneVisible);
 		salaryCalculationPane.setDisable(!isSalaryCalculationPaneVisible);
+		if(isSalaryCalculationPaneVisible)	{
+			loadPaymentList();
+		}
 
 		final boolean isProcessingPaneVisible = toggleButtonProcessing.isSelected();
 		processingPane.setVisible(isProcessingPaneVisible);
 		processingPane.setDisable(!isProcessingPaneVisible);
+		if(isProcessingPaneVisible)	{
+			loadPaymentDocumentList();
+			loadProcessedPaymentList();
+		}
 
 		if(toggleButtonGroup.getToggleGroup().getSelectedToggle() == null)	{
 			openChargesPane();
@@ -424,6 +435,7 @@ public class DriverEdit extends Screen{
 	}
 
 	private void updateProcessingCommandsState()	{
+
 		final int selectedItemCount = processingOperationsList.getSelectionModel().getSelectedItems().size();
 		final boolean containsProcessed = processingOperationsList
 				.getSelectionModel()
@@ -439,11 +451,17 @@ public class DriverEdit extends Screen{
 				.filter(paymentDocument -> !paymentDocument.getProcessed())
 				.findAny()
 				.isPresent();
+
+		final PaymentDocument selectedPaymentDocument = processingOperationsList.getSelectionModel().getSelectedItem();
+		final boolean disableStatement = selectedPaymentDocument != null
+				&& selectedPaymentDocument.getType().equals(PaymentDocumentType.IMMEDIATE);
+
 		processingButton.setDisable(selectedItemCount < 1 || containsProcessed);
 		processingRollbackCalculation.setDisable(selectedItemCount < 1 || containsProcessed);
-		processingOpenStatementButton.setDisable(selectedItemCount != 1);
+		processingOpenStatementButton.setDisable(selectedItemCount != 1 || disableStatement);
 		processingMakeSageButton.setDisable(selectedItemCount < 1 || containsUnprocessed);
 		processingMakeBarclaysButton.setDisable(selectedItemCount < 1 || containsUnprocessed);
+
 	}
 
 	// ##############################################################

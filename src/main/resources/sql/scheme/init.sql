@@ -95,6 +95,8 @@ create table payment_documents (
     driver_id integer,
     payment_date integer,
     processed integer,
+    type text,
+    method text,
     foreign key (driver_id) references drivers (id)
 );
 
@@ -107,6 +109,8 @@ create table transactions (
     net real,
     vat real,
     total real,
+    nominal_code text,
+    tax_code text,
     foreign key (payment_id) references payments (id),
     foreign key (from_id) references balances (id),
     foreign key (to_id) references balances (id)
